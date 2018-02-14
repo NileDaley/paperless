@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Nested Views in Backbone</title>
+</head>
+
+<body>
+
+<ul id="bill-wrapper"></ul>
+
+<script src="js/jquery-3.2.1.min.js"></script>
+<script src="js/underscore-min.js"></script>
+<script src="js/backbone-min.js"></script>
+<script>
+
+
+var Bill = Backbone.Model.extend({
+    defaults: {
+        tableNo: 'undefined',
+        items: menuItems[],
+        total: 0,
+        totalWithVAT: 0
+    }
+});
+
+var Bills = Backbone.Collection.extend({
+    model: Bill,
+	initialize: function () {
+        this.bind('remove', this.onModelRemoved, this);
+    },
+    onModelRemoved: function (model, collection, options) {
+        alert("removed");
+    },
+    getByName: function(name){
+       return this.filter(function(val) {
+          return val.get("name") === name;
+        })
+    }
+});
+
+var people = new People();
+
+//add test case here
+
+people.add(new Person({name:"Josh", age: 22}));
+people.add(new Person({name:"Ian", age: 24}));
+people.add(new Person({name:"Sam", age: 20}));
+
+console.info(people.toJSON());
+
+people.remove(people.getByName("Ian"));
+
+console.info(people.toJSON());
+
+</script>
+</body>
+</html>
