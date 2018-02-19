@@ -1,5 +1,16 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1.title Paperless
+  br
+  p.subtitle Tables
+  #tables.columns.is-multiline.is-centered.is-mobile
+    each table in tables
+      .column.is-3-touch.is-2-widescreen
+        //- .card
+        //-   .card-content.has-text-centered
+        //-     a.has-text-centered= table
+        button.btn_table.button.is-fullwidth.is-large= table
+          
+  #foodItems
+  #order
