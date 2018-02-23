@@ -50,10 +50,34 @@
                         </thead>
                         <tbody>
                             <tr v-for="item in tables[selectedTable-1].order">
-                                <td>{{item.item}}</td>
-                                <td>{{item.price | currency('£')}}</td>
-                                <td>{{item.quantity}}</td>
-                                <td>{{item.price * item.quantity | currency('£')}}</td>
+                                <td>{{ item.item }}</td>
+                                <td>{{ item.price | currency('£') }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.price * item.quantity | currency('£') }}</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <th>TOTAL:</th>
+                                <td>{{ totalPreTax(tables[selectedTable-1].tableNo) | currency('£') }}</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <th>VAT @ 20%:</th>
+                                <td>{{ calculateVAT(this.currentTotalPreTax) | currency('£') }}</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <th>TOTAL + VAT:</th>
+                                <td>{{ calculateTotal(this.currentTotalPreTax, this.currentVatAmount) | currency('£') }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -97,6 +121,9 @@
             data: {
                 selected: false,
                 selectedTable: null,
+                currentTotalPreTax: 0,
+                currentVatAmount: 0,
+                currentTotalPostTax: 0,
                 tables: [
                     {
                         tableNo: 1,
@@ -104,7 +131,7 @@
                         order: [
                             {
                                 item: 'food1',
-                                quantity: 1,
+                                quantity: 3,
                                 price: 3.00
                             },
                             {
@@ -148,23 +175,35 @@
                 'order-info': OrderInfo
             },
             methods: {
+
                 showTableOrder(tableNo) {
-                    // document.getElementById('orderInfo').innerHTML(tableNo)
-                    // this.order
                     this.selectedTable = tableNo;
                     this.selected = true;
-                    // alert(tableNo)
+                },
+
+                totalPreTax(tableNo) {
+                    let total = 0;
+                    this.tables[tableNo - 1].order.forEach(element => {
+                        const itemTotal = element.quantity * element.price;
+                        total += itemTotal;
+                    });
+                    this.currentTotalPreTax = total;
+                    return total;
+                },
+                
+                calculateVAT(totalPreTax) {
+                    const vat = totalPreTax * 0.2;
+                    this.currentVatAmount = vat;
+                    return vat;
+                },
+
+                calculateTotal(currentTotalPreTax, currentVatAmount) {
+                    const total = currentTotalPreTax + currentVatAmount;
+                    this.currentTotalPostTax = total;
+                    return total;
                 }
             }
         });
-        // Vue.component('my-component', {
-        //     template: '<div>A custom component!</div>'
-        // })
-
-        // // create a root instance
-        // new Vue({
-        //     el: '#example'
-        // })
     </script>
 
 </body>
