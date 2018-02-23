@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" card-content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Counter View</title>
 </head>
 
@@ -36,10 +37,12 @@
             </div>
             <br>
             <div id="selectTable">
+
                 <select-table v-if="!selected"></select-table>
+
                 <div v-if="selected" class="content box">
-                    <h3>Table No: {{ tables[selectedTable - 1].tableNo }} - Order No: {{ tables[selectedTable - 1].order_no }}</h3>
-                    <table class="table">
+
+                    <table class="table is-bordered">
                         <thead>
                             <tr>
                                 <th>Item</th>
@@ -49,162 +52,188 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in tables[selectedTable-1].order">
+                            <tr v-for="item in tables[this.currentBill.tableNo-1].order">
                                 <td>{{ item.item }}</td>
                                 <td>{{ item.price | currency('£') }}</td>
                                 <td>{{ item.quantity }}</td>
                                 <td>{{ item.price * item.quantity | currency('£') }}</td>
                             </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <th>TOTAL:</th>
-                                <td>{{ totalPreTax(tables[selectedTable-1].tableNo) | currency('£') }}</td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <th>VAT @ 20%:</th>
-                                <td>{{ calculateVAT(this.currentTotalPreTax) | currency('£') }}</td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <th>TOTAL + VAT:</th>
-                                <td>{{ calculateTotal(this.currentTotalPreTax, this.currentVatAmount) | currency('£') }}</td>
-                            </tr>
                         </tbody>
                     </table>
+
+                    <br>
+
+                    <div class="columns">
+
+                        <div class="column">
+                            <h4 class="has-text-weight-bold">Table No: {{ tables[this.currentBill.tableNo - 1].tableNo }} - Order No: {{ tables[this.currentBill.tableNo
+                                - 1].order_no }}</h4>
+                        </div>
+
+                        <div class="column">
+                            <table class="table is-narrow is-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th>TOTAL:</th>
+                                        <th>{{ totalPreTax() | currency('£') }}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>VAT @ 20%:</th>
+                                        <th>{{ calculateVAT() | currency('£') }}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>TOTAL + VAT:</th>
+                                        <th>{{ calculateTotal() | currency('£') }}
+                                        </th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <nav class="level">
+                        <!-- Left side -->
+                        <div class="level-left"> </div>
+
+                        <!-- Right side -->
+                        <div class="level-right">
+                            <a @click="completeOrder" class="button is-success is-pulled-right">
+                                <span class="icon is-small">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                                <span>Complete Order</span>
+                            </a>
+                        </div>
+
+                    </nav>
+
                 </div>
-                <!-- <order-info :is="selectedTable"></order-info> -->
+
             </div>
-
-
-            <!-- <div id="example">
-                <my-component></my-component>
-            </div> -->
         </div>
-    </div>
-    <!-- ========= -->
-    <!-- Libraries -->
-    <!-- ========= -->
-    <!-- <script src="./js/counter.js"></script> -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue2-filters/dist/vue2-filters.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+        <!-- ========= -->
+        <!-- Libraries -->
+        <!-- ========= -->
+        <!-- <script src="./js/counter.js"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue2-filters/dist/vue2-filters.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
 
-    <!-- =============== -->
-    <!-- Javascript code -->
-    <!-- =============== -->
-    <script type="text/javascript">
-        var SelectTable = {
-            template: '<div><h2>Select a table to see the order</h2></div>'
-        }
+        <!-- =============== -->
+        <!-- Javascript code -->
+        <!-- =============== -->
+        <script type="text/javascript">
+            var SelectTable = {
+                template: '<div><h2>Select a table to see the order</h2></div>'
+            }
 
-        var OrderInfo = {
-            template: `
+            var OrderInfo = {
+                template: `
             <h2>{{tableNo}}</h2>
             `,
-            data: {
-                tableNo: ''
-            }
-        }
-
-        var app = new Vue({
-            el: '#app',
-            data: {
-                selected: false,
-                selectedTable: null,
-                currentTotalPreTax: 0,
-                currentVatAmount: 0,
-                currentTotalPostTax: 0,
-                tables: [
-                    {
-                        tableNo: 1,
-                        order_no: 101,
-                        order: [
-                            {
-                                item: 'food1',
-                                quantity: 3,
-                                price: 3.00
-                            },
-                            {
-                                item: 'food2',
-                                quantity: 2,
-                                price: 1.50
-                            },
-                            {
-                                item: 'food3',
-                                quantity: 1,
-                                price: 6.50
-                            }
-                        ]
-                    },
-                    {
-                        tableNo: 2,
-                        order_no: 102,
-                        order:
-                            [
-                                {
-                                    item: '2food1',
-                                    quantity: 1,
-                                    price: 3.00
-                                },
-                                {
-                                    item: '2food2',
-                                    quantity: 1,
-                                    price: 3.00
-                                },
-                                {
-                                    item: '2food3',
-                                    quantity: 1,
-                                    price: 3.00
-                                }
-                            ]
-                    }
-                ]
-            },
-            components: {
-                'select-table': SelectTable,
-                'order-info': OrderInfo
-            },
-            methods: {
-
-                showTableOrder(tableNo) {
-                    this.selectedTable = tableNo;
-                    this.selected = true;
-                },
-
-                totalPreTax(tableNo) {
-                    let total = 0;
-                    this.tables[tableNo - 1].order.forEach(element => {
-                        const itemTotal = element.quantity * element.price;
-                        total += itemTotal;
-                    });
-                    this.currentTotalPreTax = total;
-                    return total;
-                },
-                
-                calculateVAT(totalPreTax) {
-                    const vat = totalPreTax * 0.2;
-                    this.currentVatAmount = vat;
-                    return vat;
-                },
-
-                calculateTotal(currentTotalPreTax, currentVatAmount) {
-                    const total = currentTotalPreTax + currentVatAmount;
-                    this.currentTotalPostTax = total;
-                    return total;
+                data: {
+                    tableNo: ''
                 }
             }
-        });
-    </script>
+
+            var app = new Vue({
+                el: '#app',
+                data: {
+                    selected: false,
+                    selectedTable: null,
+                    currentBill: {
+                        tableNo: 0,
+                        totalPreTax: 0,
+                        vatAmount: 0,
+                        totalPostTax: 0,
+                    },
+                    tables: [
+                        {
+                            tableNo: 1,
+                            order_no: 101,
+                            order: [
+                                {
+                                    item: 'food1',
+                                    quantity: 3,
+                                    price: 3.00
+                                },
+                                {
+                                    item: 'food2',
+                                    quantity: 2,
+                                    price: 1.50
+                                },
+                                {
+                                    item: 'food3',
+                                    quantity: 1,
+                                    price: 6.50
+                                }
+                            ]
+                        },
+                        {
+                            tableNo: 2,
+                            order_no: 102,
+                            order:
+                                [
+                                    {
+                                        item: '2food1',
+                                        quantity: 1,
+                                        price: 3.00
+                                    },
+                                    {
+                                        item: '2food2',
+                                        quantity: 1,
+                                        price: 3.00
+                                    },
+                                    {
+                                        item: '2food3',
+                                        quantity: 1,
+                                        price: 3.00
+                                    }
+                                ]
+                        }
+                    ]
+                },
+                components: {
+                    'select-table': SelectTable,
+                    'order-info': OrderInfo
+                },
+                methods: {
+
+                    showTableOrder(tableNo) {
+                        this.currentBill.tableNo = tableNo;
+                        this.selected = true;
+                    },
+
+                    totalPreTax() {
+                        let total = 0;
+                        this.tables[this.currentBill.tableNo - 1].order.forEach(element => {
+                            const itemTotal = element.quantity * element.price;
+                            total += itemTotal;
+                        });
+                        this.currentBill.totalPreTax = total;
+                        return total;
+                    },
+
+                    calculateVAT() {
+                        const vat = this.currentBill.totalPreTax * 0.2;
+                        this.currentBill.vatAmount = vat;
+                        return vat;
+                    },
+
+                    calculateTotal() {
+                        const total = this.currentBill.totalPreTax + this.currentBill.vatAmount;
+                        this.currentBill.totalPostTax = total;
+                        return total;
+                    },
+
+                    completeOrder() {
+                        alert('Saving data for table no: ' + JSON.stringify(this.currentBill));
+                    }
+                }
+            });
+        </script>
 
 </body>
 
