@@ -67,7 +67,7 @@
 
                         <div class="column">
                             <h4 class="has-text-weight-bold">Table No: {{ tables[this.currentBill.tableNo - 1].tableNo }} - Order No: {{ tables[this.currentBill.tableNo
-                                - 1].order_no }}</h4>
+                                - 1].orderNo }}</h4>
                         </div>
 
                         <div class="column">
@@ -118,6 +118,7 @@
         <!-- <script src="./js/counter.js"></script> -->
         <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue2-filters/dist/vue2-filters.min.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
         <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
 
@@ -144,15 +145,21 @@
                     selected: false,
                     selectedTable: null,
                     currentBill: {
+                        orderNo: 0,
                         tableNo: 0,
                         totalPreTax: 0,
                         vatAmount: 0,
                         totalPostTax: 0,
+                        order: {
+                            item: 0,
+                            quantity: 0,
+                            price: 0
+                        }
                     },
                     tables: [
                         {
                             tableNo: 1,
-                            order_no: 101,
+                            orderNo: 101,
                             order: [
                                 {
                                     item: 'food1',
@@ -173,7 +180,7 @@
                         },
                         {
                             tableNo: 2,
-                            order_no: 102,
+                            orderNo: 102,
                             order:
                                 [
                                     {
@@ -203,6 +210,8 @@
 
                     showTableOrder(tableNo) {
                         this.currentBill.tableNo = tableNo;
+                        this.currentBill.orderNo = this.tables[tableNo - 1].orderNo;
+                        this.currentBill.order = this.tables[tableNo - 1].order;
                         this.selected = true;
                     },
 
@@ -229,7 +238,15 @@
                     },
 
                     completeOrder() {
+                        axios.post('/api/counter/complete-order', this.currentBill)
+                            .then(function (response) {
+                                console.log(response);
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
                         alert('Saving data for table no: ' + JSON.stringify(this.currentBill));
+                        console.log(this.currentBill)
                     }
                 }
             });
