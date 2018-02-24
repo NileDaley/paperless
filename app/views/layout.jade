@@ -1,11 +1,12 @@
 doctype html
 html
   head
-    title= title
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.3/vue.js")
+    script(defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js")
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css")
     link(rel='stylesheet', href='/stylesheets/style.css')
+    title Paperless
   body
-    .section
-      .container
-        .columns
-          .column.is-8.is-offset-2
-            block content
+    block content

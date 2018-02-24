@@ -1,16 +1,53 @@
 extends layout
 
 block content
-  h1.title Paperless
-  br
-  p.subtitle Tables
-  #tables.columns.is-multiline.is-centered.is-mobile
-    each table in tables
-      .column.is-3-touch.is-2-widescreen
-        //- .card
-        //-   .card-content.has-text-centered
-        //-     a.has-text-centered= table
-        button.btn_table.button.is-fullwidth.is-large= table
-          
-  #foodItems
-  #order
+  #app
+    .section
+      .container
+        .columns
+          .column.is-8.is-offset-2
+            h2.subtitle Tables
+            #tables.columns.is-mobile.is-multiline.is-centered
+              .column.is-3.is-2-widescreen(v-for="t in tables")
+                .button.is-fullwidth(v-bind:class="{ 'is-active': currentTable === t, 'is-info': t.occupied}" v-on:click="selectTable(t)")
+                  | {{t.id}}
+            .columns(v-if="currentTable")
+              .column.is-one-third
+                // Side Bar
+                nav.panel
+                  p.panel-heading.has-text-centered
+                    | Table {{currentTable.id}}
+                  // Search
+                  .panel-block
+                    p.control.has-icons-left
+                      input.input.is-small(v-model="searchCriteria" type="text" placeholder="search")
+                      span.icon.is-small.is-left
+                        i.fas.fa-search
+                  // Customer Counter
+                  .panel-block
+                    .field.has-addons(style="width: 100%;")
+                      p.control.is-expanded
+                        a.button.is-fullwidth.is-small(v-on:click="removeCustomer()" v-bind:disabled="currentTable.customers === 0")
+                          span.icon.has-text-danger
+                            i.fas.fa-user-times
+                      p.control.is-expanded
+                        a.button.is-static.is-fullwidth.is-small
+                          span.icon
+                            i.fas.fa-users
+                          span {{currentTable.customers}}
+                      p.control.is-expanded
+                        a.button.is-fullwidth.is-small(v-on:click="addCustomer()")
+                          span.icon.has-text-success
+                            i.fas.fa-user-plus
+                  p.panel-tabs
+                    a(v-on:click="foodCategory = category" v-for="category in ['all', 'starters', 'mains', 'sides', 'desserts']" v-bind:class="{'is-active': foodCategory === category}")
+                      | {{category}}
+                  a.panel-block(v-if="foodItems.length > 0" v-for="item of foodItems")
+                    | {{item.name}}
+                  .panel-block
+                    button.button.is-link.is-outlined.is-fullwidth(v-on:click="resetFilters()")
+                      | reset all filters
+              .column
+                | {{searchCriteria}}
+  script(src="/js/index.js")
+
