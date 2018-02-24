@@ -14,12 +14,22 @@ class Order {
   }
 }
 
+class FoodItem {
+  constructor(id, name, price, category) {
+    this.id = id;
+    this.name = name;
+    this.price = price;
+    this.category = category;
+  }
+}
+
 var app = new Vue({
   el: '#app',
   data: {
     currentTable: null,
     tables: [],
     foodItems: [],
+    filteredFoodItems: [],
     foodCategory: 'all',
     searchCriteria: ''
   },
@@ -31,7 +41,16 @@ var app = new Vue({
       }
     },
     getFoodItems() {
-      // TODO: Get food items from /api/menu
+      axios.get('/api/menu')
+        .then(response => {
+          let data = response.data;
+          this.filteredFoodItems = this.foodItems = data
+            .map(item => new FoodItem(item._id, item.name, item.price, item.category))
+            .sort((item, other) => {
+              return item.name.toLowerCase().localeCompare(other.name.toLowerCase());
+            });
+        })
+        .catch(err => console.log(err));
     },
     selectTable(t) {
       this.currentTable = t;
@@ -52,6 +71,30 @@ var app = new Vue({
     resetFilters() {
       this.foodCategory = 'all';
       this.searchCriteria = '';
+      this.filteredFoodItems = this.foodItems;
+    },
+    setCategory(category) {
+      this.foodCategory = category;
+      this.filterFoodItems(this.foodCategory, this.searchCriteria);
+    },
+
+    filterFoodItems(category, criteria) {
+
+      this.filteredFoodItems = this.foodItems;
+
+      if (category !== 'all') {
+        this.filteredFoodItems = this.filteredFoodItems.filter(item => {
+          return item.category === category;
+        })
+      }
+
+      if (criteria !== '') {
+        console.log(`criteria: ${criteria}`);
+        this.filteredFoodItems = this.filteredFoodItems.filter(item => {
+          return item.name.toLowerCase().includes(criteria.toLowerCase());
+        })
+      }
+
     }
   },
   created: function () {
