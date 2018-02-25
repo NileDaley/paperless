@@ -1,6 +1,6 @@
 class Table {
-  constructor(id, occupied = false, customers = 0, order = new Order()) {
-    this.id = id;
+  constructor(_id, occupied = false, customers = 0, order = new Order()) {
+    this._id = _id;
     this.occupied = occupied;
     this.customers = customers;
     this.order = order;
@@ -15,8 +15,8 @@ class Order {
 }
 
 class FoodItem {
-  constructor(id, name, price, category) {
-    this.id = id;
+  constructor(_id, name, price, category) {
+    this._id = _id;
     this.name = name;
     this.price = price;
     this.category = category;
@@ -48,6 +48,9 @@ var app = new Vue({
     },
     emptyOrder: function () {
       return this.currentTable.order.items.length === 0;
+    },
+    pendingOrder: function () {
+      return this.currentTable.order.status === 'pending';
     }
   },
   methods: {
@@ -61,6 +64,7 @@ var app = new Vue({
       axios.get('/api/menu')
         .then(response => {
           let data = response.data;
+          // Convert the json response to FoodItem objects and sort alphabetically
           this.filteredFoodItems = this.foodItems = data
             .map(item => new FoodItem(item._id, item.name, item.price, item.category))
             .sort((item, other) => {
@@ -116,33 +120,52 @@ var app = new Vue({
     },
     addItemToOrder(foodItem) {
 
-      let found = false;
+      if (this.pendingOrder) {
+        let found = false;
 
-      // If the item is already on the order, update it's quantity
-      this.currentTable.order.items.forEach(i => {
-        if (i.item === foodItem) {
-          i.quantity++;
-          found = true;
-          return;
+        // If the item is already on the order, update it's quantity
+        this.currentTable.order.items.forEach(i => {
+          if (i.item === foodItem) {
+            i.quantity++;
+            found = true;
+            return;
+          }
+        });
+
+        // Add the new food item to the order if it doesn't exist
+        if (!found) {
+          this.currentTable.order.items.push({ "item": foodItem, "quantity": 1 });
         }
-      });
 
-      // Add the new food item to the order if it doesn't exist
-      if (!found) {
-        this.currentTable.order.items.push({ "item": foodItem, "quantity": 1 });
       }
 
     },
     removeItemFromOrder(foodItem) {
-      let item = this.currentTable.order.items.find(i => i.item === foodItem);
-      if (item.quantity > 1) {
-        item.quantity--;
-      } else {
-        this.currentTable.order.items.splice(this.currentTable.order.items.indexOf(item), 1);
+      if (this.pendingOrder) {
+        let item = this.currentTable.order.items.find(i => i.item === foodItem);
+        if (item.quantity > 1) {
+          item.quantity--;
+        } else {
+          this.currentTable.order.items.splice(this.currentTable.order.items.indexOf(item), 1);
+        }
       }
     },
     submitOrder() {
-      let order = this.currentTable.order;
+      if (this.currentTable.customers > 0 && this.pendingOrder) {
+        let order = this.currentTable.order;
+        let payload = {
+          "table": this.currentTable._id,
+          "order": order.items,
+          "customers": this.currentTable.customers
+        }
+        axios.post('/', payload)
+          .then(response => {
+            if (response.status === 201) {
+              this.currentTable.order.status = "Sent"
+            }
+          })
+          .catch(err => console.log(err));
+      }
     }
   },
   created: function () {

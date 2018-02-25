@@ -10,13 +10,13 @@ block content
             #tables.columns.is-mobile.is-multiline.is-centered
               .column.is-3.is-2-widescreen(v-for="t in tables")
                 .button.is-fullwidth(:class="{ 'is-active': currentTable === t, 'is-info': t.occupied}" @click="selectTable(t)")
-                  | {{t.id}}
+                  | {{t._id}}
             .columns(v-if="currentTable")
               .column.is-one-third
                 // Side Bar
                 nav.panel
                   p.panel-heading.has-text-centered
-                    | Table {{currentTable.id}}
+                    | Table {{currentTable._id}}
                   // Search
                   .panel-block
                     p.control.has-icons-left
@@ -55,53 +55,53 @@ block content
                   p.has-text-centered(v-if="emptyOrder") No items on order
                   #starters(v-if="starters.length > 0")
                     p.label Starters
-                     p.columns.is-marginless(v-for="starter of starters")
+                     p.columns.is-marginless.is-mobile(v-for="starter of starters")
                       span.column {{starter.item.name}}
                       span.column.has-text-right
-                        a.link(@click="removeItemFromOrder(starter.item)")
+                        a.link(@click="removeItemFromOrder(starter.item)" v-if="pendingOrder")
                           span.icon
                             i.fas.fa-minus
                         span &nbsp; x{{starter.quantity}} &nbsp;
-                        a.link(@click="addItemToOrder(starter.item)")
+                        a.link(@click="addItemToOrder(starter.item)" v-if="pendingOrder")
                           span.icon
                             i.fas.fa-plus
 
                   #mains(v-if="mains.length > 0")
                     p.label Mains
-                    p.columns.is-marginless(v-for="main of mains")
+                    p.columns.is-marginless.is-mobile(v-for="main of mains")
                       span.column {{main.item.name}}
                       span.column.has-text-right
-                        a.link(@click="removeItemFromOrder(main.item)")
+                        a.link(@click="removeItemFromOrder(main.item)" v-if="pendingOrder")
                           span.icon
                             i.fas.fa-minus
                         span &nbsp; x{{main.quantity}} &nbsp;
-                        a.link(@click="addItemToOrder(main.item)")
+                        a.link(@click="addItemToOrder(main.item)" v-if="pendingOrder")
                           span.icon
                             i.fas.fa-plus
 
                   #sides(v-if="sides.length > 0")
                     p.label Sides
-                    p.columns.is-marginless(v-for="side of sides")
+                    p.columns.is-marginless.is-mobile(v-for="side of sides")
                       span.column {{side.item.name}}
                       span.column.has-text-right
-                        a.link(@click="removeItemFromOrder(side.item)")
+                        a.link(@click="removeItemFromOrder(side.item)" v-if="pendingOrder")
                           span.icon
                             i.fas.fa-minus
                         span &nbsp; x{{side.quantity}} &nbsp;
-                        a.link(@click="addItemToOrder(side.item)")
+                        a.link(@click="addItemToOrder(side.item)" v-if="pendingOrder")
                           span.icon
                             i.fas.fa-plus
 
                   #desserts(v-if="desserts.length > 0")
                     p.label Desserts
-                    p.columns.is-marginless(v-for="dessert of desserts")
+                    p.columns.is-marginless.is-mobile(v-for="dessert of desserts")
                       span.column {{dessert.item.name}}
                       span.column.has-text-right
-                        a.link(@click="removeItemFromOrder(dessert.item)")
+                        a.link(@click="removeItemFromOrder(dessert.item)" v-if="pendingOrder")
                           span.icon
                             i.fas.fa-minus
                         span &nbsp; x{{dessert.quantity}} &nbsp;
-                        a.link(@click="addItemToOrder(dessert.item)")
+                        a.link(@click="addItemToOrder(dessert.item)" v-if="pendingOrder")
                           span.icon
                             i.fas.fa-plus
                   
@@ -109,6 +109,6 @@ block content
                   #orderControls(v-if="!emptyOrder")
                     .columns
                       .column.is-6.is-offset-3
-                        button.button.is-success.is-fullwidth.is-outlined(@click="submitOrder()") Submit
+                        button.button.is-success.is-fullwidth(:disabled="currentTable.customers <= 0" @click="submitOrder()" v-if="pendingOrder") Submit
   script(src="/js/index.js")
 
