@@ -33,6 +33,23 @@ var app = new Vue({
     foodCategory: 'all',
     searchCriteria: ''
   },
+  computed: {
+    starters: function () {
+      return this.getOrderItemsByCategory('starter');
+    },
+    mains: function () {
+      return this.getOrderItemsByCategory('main');
+    },
+    sides: function () {
+      return this.getOrderItemsByCategory('side');
+    },
+    desserts: function () {
+      return this.getOrderItemsByCategory('dessert');
+    },
+    emptyOrder: function () {
+      return this.currentTable.order.items.length === 0;
+    }
+  },
   methods: {
     createTables() {
       const TABLES = 6;
@@ -52,8 +69,8 @@ var app = new Vue({
         })
         .catch(err => console.log(err));
     },
-    selectTable(t) {
-      this.currentTable = t;
+    selectTable(table) {
+      this.currentTable = table;
     },
     addCustomer() {
       this.currentTable.customers += 1;
@@ -77,7 +94,6 @@ var app = new Vue({
       this.foodCategory = category;
       this.filterFoodItems(this.foodCategory, this.searchCriteria);
     },
-
     filterFoodItems(category, criteria) {
 
       this.filteredFoodItems = this.foodItems;
@@ -89,12 +105,44 @@ var app = new Vue({
       }
 
       if (criteria !== '') {
-        console.log(`criteria: ${criteria}`);
         this.filteredFoodItems = this.filteredFoodItems.filter(item => {
           return item.name.toLowerCase().includes(criteria.toLowerCase());
         })
       }
 
+    },
+    getOrderItemsByCategory(category) {
+      return this.currentTable.order.items.filter(i => i.item.category === category);
+    },
+    addItemToOrder(foodItem) {
+
+      let found = false;
+
+      // If the item is already on the order, update it's quantity
+      this.currentTable.order.items.forEach(i => {
+        if (i.item === foodItem) {
+          i.quantity++;
+          found = true;
+          return;
+        }
+      });
+
+      // Add the new food item to the order if it doesn't exist
+      if (!found) {
+        this.currentTable.order.items.push({ "item": foodItem, "quantity": 1 });
+      }
+
+    },
+    removeItemFromOrder(foodItem) {
+      let item = this.currentTable.order.items.find(i => i.item === foodItem);
+      if (item.quantity > 1) {
+        item.quantity--;
+      } else {
+        this.currentTable.order.items.splice(this.currentTable.order.items.indexOf(item), 1);
+      }
+    },
+    submitOrder() {
+      let order = this.currentTable.order;
     }
   },
   created: function () {
