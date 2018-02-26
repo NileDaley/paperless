@@ -24,23 +24,23 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/api', api);
-app.get('/counter', function(req, res) {
+app.get('/counter', (req, res) => {
   res.sendFile(__dirname + '/modules/counter/counter.html');
 });
 
-app.get('/admin', function(req, res) {
+app.get('/admin', (req, res) => {
   res.sendFile(__dirname + '/modules/admin/admin.html');
 })
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
