@@ -9,151 +9,71 @@
 
 <body>
     <div class="section">
-        <div class="container">
+        <div class="container" id="app">
             <h1 class="title">
                 Admin Page
             </h1>
-            <div class="food">
-                loading...
+            <div class="menuItems content box">
+                <table class="table is-bordered is-striped">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(foodItem, index) in filteredFoodItems">
+                            <td>{{ foodItem.name }}</td>
+                            <td>{{ foodItem.price | currency('£') }}</td>
+                            <td>{{ foodItem.category }}</td>
+                            <td>
+                                <a @click="removeItem(index)" class="button is-danger is-outlined">
+                                    <span>Delete</span>
+                                    <span class="icon is-small">
+                                        <i class="fas fa-times"></i>
+                                    </span>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <form >
+                    <div class="field">
+                        <label class="label">Food Name</label>
+                        <div class="control">
+                            <input class="input" type="text" placeholder="Food Name" v-model="newItem.name">
+                        </div>
+                        <label class="label">Food Price</label>
+                        <div class="control">
+                            <input class="input" type="text" placeholder="Food Price" v-model="newItem.price">
+                        </div>
+                        <label class="label">Category</label>
+                        <div class="control">
+                            <div class="select">
+                                <select v-model="newItem.category">
+                                    <option>starter</option>
+                                    <option>main</option>
+                                    <option>side</option>
+                                    <option>dessert</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control">
+                            <button @click="addNewItem" class="button is-primary">Add New Item</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js" type="text/javascript"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js" type="text/javascript"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.0/backbone.localStorage-min.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue2-filters/dist/vue2-filters.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
-
-    <!-- =============== -->
-    <!-- Javascript code -->
-    <!-- =============== -->
-    <script type="text/javascript">
-
-        // create the model
-        MenuItem = Backbone.Model.extend({});
-
-        // create the collection
-        MenuItems = Backbone.Collection.extend({
-            model: MenuItem
-        });
-
-        // populate the collection
-        var menuItems = new MenuItems([
-            { name: 'Chicken sour' },
-            { name: 'noodle' },
-        ]);
-        console.log(menuItems.toJSON());
-
-
-        // create a model view for each band member
-        MenuItemView = Backbone.View.extend({
-            tagName: 'li',
-            model: new MenuItem(),
-            render: function () {
-                // add the name to the list item  
-                this.$el.html(this.model.get('name'));
-                // append the new list item to the list in the parent view 
-                this.parentView.$el.append(this.$el);
-                return this;
-            }
-        });
-
-        // create a collection view for the band members
-        MenuItemsView = Backbone.View.extend({
-            el: '#food',
-            initialize: function () {
-                // share the "this" context with the render function 
-                _.bindAll(this, 'render');
-                // add various events for the collection
-                this.collection.on('change', this.render);
-                this.collection.on('add', this.render);
-                this.collection.on('remove', this.render);
-                //         // render the initial state
-                this.render();
-            },
-
-            render: function () {
-                // empty out the view element
-                this.$el.empty();
-
-                // cache this before entering the loop
-                var thisView = this;
-
-                // loop through all of the items in the collection, creating a 
-                // view for each
-                this.collection.each(function (oneFoodItem) {
-                    var MenuItemView = new MenuItemView({
-                        model: oneFoodItem
-                    });
-
-                    // save a reference to this view within the child view
-                    MenuItemView.parentView = thisView;
-
-                    // render it
-                    MenuItemView.render();
-                });
-
-                return this;
-            }
-        });
-
-        // create a new instance of the band view
-        var MenuItemView = new MenuItemView({
-            collection: menuItems
-        });
-
-        //add your test case here
-        //add
-        var model = new MenuItem({});
-        model.set({ name: 'Chicken Sour' });
-        menuItems.add(model);
-
-        //remove
-        menuItems.findWhere({ name: 'Noodle' }).destroy();
-
-        //change or update
-        var model = menuItems.at(1);
-        model.set({ name: 'Sweet sour' });
-
-
-        // var foodItems = [
-        //     {
-        //         "item_id": "101",
-        //         "item_name": "food 1",
-        //         "item_price": "1.99"
-        //     },
-        //     {
-        //         "item_id": "102",
-        //         "item_name": "food 2",
-        //         "item_price": "2.99"
-        //     },
-        //     {
-        //         "item_id": "103",
-        //         "item_name": "food 3",
-        //         "item_price": "3.99"
-        //     },
-        //     {
-        //         "item_id": "104",
-        //         "item_name": "food 4",
-        //         "item_price": "4.99"
-        //     },
-        //     {
-        //         "item_id": "105",
-        //         "item_name": "food 5",
-        //         "item_price": "5.99"
-        //     }
-        // ];
-
-        // for (var i = 0; i < foodItems.length; i++) {
-        //     var obj = foodItems[i];
-
-        //     console.log(obj.item_id);
-        //     // console.log(obj.item_name);
-        // }
-
-
-    </script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
+    <script src="./js/admin.js"></script>
 
 </body>
 

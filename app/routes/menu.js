@@ -13,4 +13,15 @@ router.get('/', function (req, res, next) {
     .catch(err => res.send(err));
 });
 
+//  ATTEMPTING TO REMOVE ONE ITEM - NOT WHOLE DB
+// router.delete('/', function (req, res) {
+//   let itemToRemove = req.body;
+//   let FoodItem = mongoose.model('FoodItem', FoodItemSchema);
+//   FoodItem
+//     .find(itemToRemove)
+//     .remove(itemToRemove, err => {
+//       if (err) return handleError(err);
+//     })
+// })
+
 module.exports = router;
