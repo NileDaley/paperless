@@ -46,7 +46,7 @@ const app = new Vue({
         },
 
         removeItem(itemToRemove) {
-            axios.delete('/api/menu', this.foodItems[itemToRemove])
+            axios.delete('/api/menu', {data:this.foodItems[itemToRemove]})
                 .then(response => {
                     console.log(response);
                 })

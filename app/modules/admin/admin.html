@@ -23,12 +23,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(foodItem, index) in filteredFoodItems">
+                        <tr v-for="(foodItem, index) in filteredFoodItems" :key="index">
                             <td>{{ foodItem.name }}</td>
                             <td>{{ foodItem.price | currency('£') }}</td>
                             <td>{{ foodItem.category }}</td>
                             <td>
-                                <a @click="removeItem(index)" class="button is-danger is-outlined">
+                                <a @click.prevent="removeItem(index)" class="button is-danger is-outlined">
                                     <span>Delete</span>
                                     <span class="icon is-small">
                                         <i class="fas fa-times"></i>
@@ -38,29 +38,40 @@
                         </tr>
                     </tbody>
                 </table>
-                <form >
+                <form>
                     <div class="field">
-                        <label class="label">Food Name</label>
-                        <div class="control">
-                            <input class="input" type="text" placeholder="Food Name" v-model="newItem.name">
-                        </div>
-                        <label class="label">Food Price</label>
-                        <div class="control">
-                            <input class="input" type="text" placeholder="Food Price" v-model="newItem.price">
-                        </div>
-                        <label class="label">Category</label>
-                        <div class="control">
-                            <div class="select">
-                                <select v-model="newItem.category">
-                                    <option>starter</option>
-                                    <option>main</option>
-                                    <option>side</option>
-                                    <option>dessert</option>
-                                </select>
+
+                        <div class="columns">
+                            <div class="column">
+                                <label class="label">Food Name</label>
+                                <div class="control">
+                                    <input class="input" type="text" placeholder="Food Name" v-model="newItem.name">
+                                </div>
                             </div>
-                        </div>
-                        <div class="control">
-                            <button @click="addNewItem" class="button is-primary">Add New Item</button>
+                            <div class="column">
+                                <label class="label">Food Price</label>
+                                <div class="control">
+                                    <input class="input" type="text" placeholder="Food Price" v-model="newItem.price">
+                                </div>
+                            </div>
+                            <div class="column">
+                                <label class="label">Category</label>
+                                <div class="control">
+                                    <div class="select">
+                                        <select v-model="newItem.category">
+                                            <option>starter</option>
+                                            <option>main</option>
+                                            <option>side</option>
+                                            <option>dessert</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="control" id="newItemButton">
+                                    <button @click="addNewItem" class="button is-primary">Add New Item</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -74,6 +85,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
     <script src="./js/admin.js"></script>
+    <link rel="stylesheet" type="text/css" href="./stylesheets/admin.css">
+    <!-- <script src="./stylesheets/admin.css"></script> -->
 
 </body>
 
