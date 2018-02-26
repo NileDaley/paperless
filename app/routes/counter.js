@@ -18,16 +18,16 @@ db.once('open', function () {
 
 const orderSchema = require('../schemas/order');
 
-var orderModel = mongoose.model('orders', orderSchema, 'orders');
+const orderModel = mongoose.model('orders', orderSchema, 'orders');
 
 /* GET users listing. */
-router.get('/', function (req, res, next) {
+router.get('/', (req, res, next) => {
   res.send('you\'re at the counter api');
 });
 
-router.post('/complete-order', function (req, res) {
+router.post('/complete-order', (req, res) => {
   const orderToSave = req.body;
-  orderModel.create(orderToSave, function (err) {
+  orderModel.create(orderToSave, (err) => {
     if (err) {
       console.log('Error Inserting Order #' + orderToSave.orderNo);
     } else {
