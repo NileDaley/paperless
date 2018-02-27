@@ -9,7 +9,7 @@ block content
             h2.subtitle Tables
             #tables.columns.is-mobile.is-multiline.is-centered
               .column.is-3.is-2-widescreen(v-for="t in tables")
-                .button.is-fullwidth(:class="{ 'is-active': currentTable === t, 'is-info': t.occupied}" @click="selectTable(t)")
+                .button.is-fullwidth(:class="{ 'is-active': currentTable === t, 'is-info': t.occupied, 'is-warning': t.order.status === 'cooking'}" @click="selectTable(t)")
                   | {{t._id}}
             .columns(v-if="currentTable")
               .column.is-one-third
