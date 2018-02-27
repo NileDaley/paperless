@@ -10,12 +10,13 @@ class FoodItem {
 const app = new Vue({
     el: '#app',
     data: {
+        errors: [],
         foodItems: [],
         filteredFoodItems: [],
         newItem: {
             name: '',
             price: '',
-            category: ''
+            category: 'Select Dropdown'
         }
     },
     methods: {
@@ -35,24 +36,59 @@ const app = new Vue({
                 });
         },
 
+        checkForm: function (e) {
+            this.errors = [];
+            if (!this.newItem.name) {
+                this.errors.push("Name required.");
+            } else if (!this.validName(this.newItem.name)) {
+                this.errors.push("Valid Name required.");
+            }
+            if (!this.newItem.price) {
+                this.errors.push("Price required.");
+            } else if (!this.validPrice(this.newItem.price)) {
+                this.errors.push("Valid Price required.");
+            }
+            if (this.newItem.category === 'Select Dropdown') {
+                this.errors.push("Please select a valid category")
+            }
+            if (!this.errors.length) return true;
+            // e.preventDefault();
+        },
+        validName: function (name) {
+            var re = /^[A-Za-z0-9 _]*[A-Za-z0-9][A-Za-z0-9 _]*$/;
+            return re.test(name);
+        },
+        validPrice: function (price) {
+            var re = /^([0-9]+\.[0-9]{2})$|^([0-9]+)$/;
+            return re.test(price);
+        },
+
+
         addNewItem() {
-            axios.post('/api/admin/new-item', this.newItem)
-                .then(response => {
-                    console.log(response);
-                })
-                .catch(err => {
-                    console.log(err)
-                });
+            this.checkForm();
+            if (!this.errors.length) {
+                axios.post('/api/admin/new-item', this.newItem)
+                    .then(response => {
+                        this.filteredFoodItems.push(this.newItem);
+                        console.log(response);
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    });
+            } else {
+                console.log(this.errors);
+            }
         },
 
         removeItem(itemToRemove) {
-            axios.delete('/api/menu', {data:this.foodItems[itemToRemove]})
+            axios.delete('/api/menu', { data: this.foodItems[itemToRemove] })
                 .then(response => {
                     console.log(response);
                 })
                 .catch(err => {
                     console.log(err)
                 });
+            this.filteredFoodItems.splice(itemToRemove, 1);
         }
     },
 

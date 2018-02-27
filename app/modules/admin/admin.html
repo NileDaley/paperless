@@ -11,7 +11,8 @@
     <div class="section">
         <div class="container" id="app">
             <h1 class="title">
-                Admin Page
+                <i class="fas fa-cog"></i>
+                Admin Panel
             </h1>
             <div class="menuItems content box">
                 <table class="table is-bordered is-striped">
@@ -28,7 +29,7 @@
                             <td>{{ foodItem.price | currency('£') }}</td>
                             <td>{{ foodItem.category }}</td>
                             <td>
-                                <a @click.prevent="removeItem(index)" class="button is-danger is-outlined">
+                                <a @click="removeItem(index)" class="button is-danger is-outlined">
                                     <span>Delete</span>
                                     <span class="icon is-small">
                                         <i class="fas fa-times"></i>
@@ -38,27 +39,28 @@
                         </tr>
                     </tbody>
                 </table>
-                <form>
+                <form novalidate = "true">
                     <div class="field">
 
                         <div class="columns">
                             <div class="column">
                                 <label class="label">Food Name</label>
                                 <div class="control">
-                                    <input class="input" type="text" placeholder="Food Name" v-model="newItem.name">
+                                    <input class="input is-rounded" type="text" placeholder="Food Name" v-model="newItem.name">
                                 </div>
                             </div>
                             <div class="column">
                                 <label class="label">Food Price</label>
                                 <div class="control">
-                                    <input class="input" type="text" placeholder="Food Price" v-model="newItem.price">
+                                    <input class="input is-rounded" type="text" placeholder="Food Price" v-model="newItem.price">
                                 </div>
                             </div>
                             <div class="column">
                                 <label class="label">Category</label>
                                 <div class="control">
-                                    <div class="select">
+                                    <div class="select is-rounded">
                                         <select v-model="newItem.category">
+                                            <option>Select Dropdown</option>
                                             <option>starter</option>
                                             <option>main</option>
                                             <option>side</option>
@@ -69,11 +71,17 @@
                             </div>
                             <div class="column">
                                 <div class="control" id="newItemButton">
-                                    <button @click="addNewItem" class="button is-primary">Add New Item</button>
+                                    <a @click="addNewItem" class="button is-primary is-rounded">Add New Item</a>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <p v-if="errors.length">
+                        <b>Please correct the following error(s):</b>
+                        <ul>
+                            <li v-for="error in errors">{{ error }}</li>
+                        </ul>
+                    </p>
                 </form>
             </div>
         </div>

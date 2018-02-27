@@ -16,12 +16,15 @@ router.get('/', function (req, res, next) {
  //Remove item working now
 router.delete('/', function (req, res) {
   let itemToRemove = req.body;
+  console.log('Removing: ');
+  console.log(itemToRemove);
   let FoodItem = mongoose.model('FoodItem', FoodItemSchema);
   FoodItem
-    .find(itemToRemove)
-    .remove(itemToRemove, err => {
-      if (err) return handleError(err);
+    .findByIdAndRemove(itemToRemove._id)
+    .then(response => {
+      res.send(response);
     })
+    .catch(err => res.send(err));
 })
 
 module.exports = router;
