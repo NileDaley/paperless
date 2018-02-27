@@ -8,7 +8,9 @@ const OrderSchema = new Schema({
     item: { type: Schema.Types.ObjectId, ref: 'OrderLine' }
   }],
   date: String,
-  customers: Number
+  customers: Number,
+  status: String,
+  bill: { type: Schema.Types.ObjectId, ref: 'Bill' }  
 });
 
 module.exports = OrderSchema;

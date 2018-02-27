@@ -111,6 +111,18 @@ var app = new Vue({
                 });
             alert('Saving data for table no: ' + JSON.stringify(this.currentBill));
             console.log(this.currentBill)
+        },
+
+         // finish this
+        getOrders() {
+            axios.get('/api/counter/all-order')
+                .then(response => {
+                    let data = response.data;                   
+                })
+                .catch(err => console.log(err));
         }
+    },
+    created: function () {
+        // this.getOrders();
     }
 });
