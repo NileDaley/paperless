@@ -9,44 +9,53 @@ block content
             h2.subtitle Tables
             #tables.columns.is-mobile.is-multiline.is-centered
               .column.is-3.is-2-widescreen(v-for="t in tables")
-                .button.is-fullwidth(:class="{ 'is-active': currentTable === t, 'is-info': t.occupied, 'is-warning': t.order.status === 'cooking'}" @click="selectTable(t)")
+                .button.is-fullwidth(:class="{ 'is-active': currentTable === t, 'is-info': t.occupied, 'is-warning': t.order.status === 'cooking', 'is-danger': t.order.status === 'ready', 'is-success': t.order.status === 'served'}" @click="selectTable(t)")
                   | {{t._id}}
             .columns(v-if="currentTable")
+
+              // Side Bar
               .column.is-one-third
-                // Side Bar
                 nav.panel
                   p.panel-heading.has-text-centered
                     | Table {{currentTable._id}}
-                  // Search
-                  .panel-block
-                    p.control.has-icons-left
-                      input.input.is-small(v-model="searchCriteria" type="text" placeholder="search" @keyup="filterFoodItems(foodCategory, searchCriteria)")
-                      span.icon.is-small.is-left
-                        i.fas.fa-search
-                  // Customer Counter
-                  .panel-block
-                    .field.has-addons(style="width: 100%;")
-                      p.control.is-expanded
-                        a.button.is-fullwidth.is-small(:disabled="currentTable.customers === 0" @click="removeCustomer()" )
-                          span.icon.has-text-danger
-                            i.fas.fa-user-times
-                      p.control.is-expanded
-                        a.button.is-static.is-fullwidth.is-small
-                          span.icon
-                            i.fas.fa-users
-                          span {{currentTable.customers}}
-                      p.control.is-expanded
-                        a.button.is-fullwidth.is-small(@click="addCustomer()")
-                          span.icon.has-text-success
-                            i.fas.fa-user-plus
-                  p.panel-tabs
-                    a(:class="{'is-active': foodCategory === category}" v-for="category in ['all', 'starter', 'main', 'side', 'dessert']" @click="setCategory(category)")
-                      | {{category}}
-                  a.panel-block(v-if="foodItems.length > 0" v-for="item of filteredFoodItems" @click="addItemToOrder(item)")
-                    | {{item.name}}
-                  .panel-block
-                    button.button.is-link.is-outlined.is-fullwidth(@click="resetFilters()")
-                      | reset all filters
+                  div(v-if="currentTable.order.status === 'pending'")
+                    // Customer Counter
+                    .panel-block
+                      .field.has-addons(style="width: 100%;")
+                        p.control.is-expanded
+                          a.button.is-fullwidth.is-small(:disabled="currentTable.customers === 0" @click="removeCustomer()" )
+                            span.icon.has-text-danger
+                              i.fas.fa-user-times
+                        p.control.is-expanded
+                          a.button.is-static.is-fullwidth.is-small
+                            span.icon
+                              i.fas.fa-users
+                            span {{currentTable.customers}}
+                        p.control.is-expanded
+                          a.button.is-fullwidth.is-small(@click="addCustomer()")
+                            span.icon.has-text-success
+                              i.fas.fa-user-plus
+                    // Search
+                    .panel-block
+                      p.control.has-icons-left
+                        input.input.is-small(v-model="searchCriteria" type="text" placeholder="search" @keyup="filterFoodItems(foodCategory, searchCriteria)")
+                        span.icon.is-small.is-left
+                          i.fas.fa-search
+                    p.panel-tabs
+                      a(:class="{'is-active': foodCategory === category}" v-for="category in ['all', 'starter', 'main', 'side', 'dessert']" @click="setCategory(category)")
+                        | {{category}}
+                    a.panel-block(v-if="foodItems.length > 0" v-for="item of filteredFoodItems" @click="addItemToOrder(item)")
+                      | {{item.name}}
+                    .panel-block
+                      button.button.is-link.is-outlined.is-fullwidth(@click="resetFilters()")
+                        | reset all filters
+                  div(v-else)
+                    .panel-block
+                      button.button.is-link.is-outlined.is-fullwidth(@click="editOrder()") Edit Order
+                    .panel-block
+                      button.button.is-danger.is-outlined.is-fullwidth(@click="clearTable()") Clear Table
+              
+              //Order details
               .column#order-details
                 .box
                   p.subtitle
@@ -110,5 +119,6 @@ block content
                     .columns
                       .column.is-6.is-offset-3
                         button.button.is-success.is-fullwidth(:disabled="currentTable.customers <= 0" @click="submitOrder()" v-if="pendingOrder") Submit
+                        button.button.is-success.is-fullwidth(v-if="currentTable.order.status === 'ready'" @click="servedOrder()") Food Served
   script(src="/js/index.js")
 

@@ -177,15 +177,21 @@ var app = new Vue({
           })
           .catch(err => console.log(err));
       }
+    },
+    servedOrder() {
+      this.socket.emit('orderStateChange', {
+        "id": this.currentTable.order._id,
+        "status": "served"
+      });
     }
   },
   created: function () {
     this.createTables();
     this.getFoodItems();
+    // TODO: Get orders from db
     this.socket = io.connect();
     this.socket.on('orderStateChange', orderState => {
       const table = this.tables.find(t => t.order._id === orderState.id);
-      // TODO: if status === 'ready', enable a button which will change state to 'served'
       // TODO: If status === 'paid', reset the table -> customers: 0, order: new Order(), occupied: false
       table.order.status = orderState.status;
     });
