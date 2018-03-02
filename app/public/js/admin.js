@@ -12,6 +12,7 @@ const app = new Vue({
     el: '#app',
     data: {
         errors: [],
+        errorsEdit: [],
         foodItems: [],
         filteredFoodItems: [],
         editingRow: true,
@@ -36,6 +37,25 @@ const app = new Vue({
                 .catch(err => {
                     console.log(err)
                 });
+        },
+
+        checkFormEdit: function (item){
+            this.errorsEdit = [];
+            if(!item.name){
+                this.errorsEdit.push("Name required.");
+            } else if (!this.validName(item.name)){
+                this.errorsEdit.push("Valid Name required.");
+            }
+            if (item.price) {
+                this.errorsEdit.push("Price required.");
+            } else if (!this.validPrice(item.price)) {
+                this.errorsEdit.push("Valid Price required.");
+            }
+            if (item.category === 'Select Dropdown') {
+                this.errorsEdit.push("Please select a valid category")
+            }
+            if (!this.errorsEdit.length) return true;
+            // e.preventDefault();
         },
 
         checkForm: function (e) {
@@ -79,6 +99,30 @@ const app = new Vue({
                     });
             } else {
                 console.log(this.errors);
+            }
+        },
+
+        editItem(itemToEdit) {
+            let item = this.filteredFoodItems[itemToEdit];
+            this.checkFormEdit(item);
+            console.log(item.editing);
+            if (item.editing) {
+                if (!this.errorsEdit.length) {
+                    axios.put('/api/menu', { data: item })
+                        .then(response => {
+                            // item.push(this.foodItems);
+                            console.log(response);
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        });
+
+                    item.editing = !item.editing;
+                } else {
+                    console.log(this.errors);
+                }
+            } else {
+                item.editing = !item.editing;
             }
         },
 

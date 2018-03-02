@@ -16,13 +16,22 @@ router.get('/', function (req, res, next) {
  //Remove item working now
 router.delete('/', function (req, res) {
   let itemToRemove = req.body;
-  console.log('Removing: ');
-  console.log(itemToRemove);
   let FoodItem = mongoose.model('FoodItem', FoodItemSchema);
   FoodItem
     .findByIdAndRemove(itemToRemove._id)
     .then(response => {
       res.send(response);
+    })
+    .catch(err => res.send(err));
+})
+
+router.put('/', function (req, res) {
+  let itemToEdit = req.body.data;
+  let FoodItem = mongoose.model('FoodItem', FoodItemSchema);
+  FoodItem
+    .findByIdAndUpdate(itemToEdit._id, itemToEdit)
+    .then(response => {
+      res.send('Menu item updated');
     })
     .catch(err => res.send(err));
 })
