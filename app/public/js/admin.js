@@ -39,14 +39,14 @@ const app = new Vue({
                 });
         },
 
-        checkFormEdit: function (item){
+        checkFormEdit: function (item) {
             this.errorsEdit = [];
-            if(!item.name){
+            if (!item.name) {
                 this.errorsEdit.push("Name required.");
-            } else if (!this.validName(item.name)){
+            } else if (!this.validName(item.name)) {
                 this.errorsEdit.push("Valid Name required.");
             }
-            if (item.price) {
+            if (!item.price) {
                 this.errorsEdit.push("Price required.");
             } else if (!this.validPrice(item.price)) {
                 this.errorsEdit.push("Valid Price required.");
@@ -105,18 +105,15 @@ const app = new Vue({
         editItem(itemToEdit) {
             let item = this.filteredFoodItems[itemToEdit];
             this.checkFormEdit(item);
-            console.log(item.editing);
             if (item.editing) {
                 if (!this.errorsEdit.length) {
                     axios.put('/api/menu', { data: item })
                         .then(response => {
-                            // item.push(this.foodItems);
                             console.log(response);
                         })
                         .catch(err => {
                             console.log(err)
                         });
-
                     item.editing = !item.editing;
                 } else {
                     console.log(this.errors);
