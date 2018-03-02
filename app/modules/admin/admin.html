@@ -25,9 +25,15 @@
                     </thead>
                     <tbody>
                         <tr v-for="(foodItem, index) in filteredFoodItems" :key="index">
-                            <td>{{ foodItem.name }}</td>
-                            <td>{{ foodItem.price | currency('£') }}</td>
-                            <td>{{ foodItem.category }}</td>
+                            <td>
+                                <input v-bind:value="foodItem.name" v-bind:class="{'is-static': !foodItem.editing}" type="text" class="input">
+                            </td>
+                            <td>
+                                <input v-bind:value="foodItem.price | currency('£')" v-bind:class="{'is-static': !foodItem.editing}" type="text" class="input">
+                            </td>
+                            <td>
+                                <input v-bind:value="foodItem.category" v-bind:class="{'is-static': !foodItem.editing}" type="text" class="input">
+                            </td>
                             <td>
                                 <a @click="removeItem(index)" class="button is-danger is-outlined">
                                     <span>Delete</span>
@@ -36,10 +42,13 @@
                                     </span>
                                 </a>
                             </td>
+                            <td>
+                                <button class="button is-fullwidth" v-on:click="foodItem.editing = !foodItem.editing" v-bind:value="foodItem.editing ? 'Save': 'Edit'">Edit</button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
-                <form novalidate = "true">
+                <form novalidate="true">
                     <div class="field">
 
                         <div class="columns">

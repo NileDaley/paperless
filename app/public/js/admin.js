@@ -4,6 +4,7 @@ class FoodItem {
         this.name = name;
         this.price = price;
         this.category = category;
+        this.editing = false;
     }
 }
 
@@ -13,6 +14,7 @@ const app = new Vue({
         errors: [],
         foodItems: [],
         filteredFoodItems: [],
+        editingRow: true,
         newItem: {
             name: '',
             price: '',
