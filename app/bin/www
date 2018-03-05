@@ -20,6 +20,23 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var io = require('socket.io')(server);
+
+io.on('connection', socket => {
+
+  // TODO: Handle newOrder in counter + kitchen view  
+
+  // Relay new order to kitchen and counter when sent by waiter
+  socket.on('newOrder', data => {
+    io.sockets.emit('newOrder', data);
+  });
+
+  // Update all clients when the state of an order changes
+  socket.on('orderStateChange', orderState => {
+    io.sockets.emit('orderStateChange', orderState);
+  });
+
+});
 
 /**
  * Listen on provided port, on all network interfaces.

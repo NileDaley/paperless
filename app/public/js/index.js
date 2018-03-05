@@ -11,6 +11,7 @@ class Order {
   constructor(status = "pending", items = []) {
     this.status = status;
     this.items = items;
+    this._id = null;
   }
 }
 
@@ -31,7 +32,8 @@ var app = new Vue({
     foodItems: [],
     filteredFoodItems: [],
     foodCategory: 'all',
-    searchCriteria: ''
+    searchCriteria: '',
+    socket: null
   },
   computed: {
     starters: function () {
@@ -161,15 +163,44 @@ var app = new Vue({
         axios.post('/', payload)
           .then(response => {
             if (response.status === 201) {
+
+              let submittedOrder = response.data;
+
+              // Update the table's order
+              this.currentTable.order._id = submittedOrder._id;
               this.currentTable.order.status = "Sent"
+
+              // Tell the other parts of the system about the new order
+              this.socket.emit('newOrder', submittedOrder);
+
             }
           })
           .catch(err => console.log(err));
       }
+    },
+    servedOrder() {
+      this.socket.emit('orderStateChange', {
+        "id": this.currentTable.order._id,
+        "status": "served"
+      });
     }
   },
   created: function () {
     this.createTables();
     this.getFoodItems();
+    // TODO: Get orders from db
+    this.socket = io.connect();
+    this.socket.on('orderStateChange', orderState => {
+      const table = this.tables.find(t => t.order._id === orderState.id);
+
+      if (orderState.status === 'paid') {
+        table.customers = 0;
+        table.order = new Order();
+        table.occupied = false;
+      } else {
+        table.order.status = orderState.status;
+      }  
+
+    });
   }
 });
