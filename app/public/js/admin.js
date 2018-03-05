@@ -11,6 +11,10 @@ class FoodItem {
 const app = new Vue({
     el: '#app',
     data: {
+        messages: [],
+        addMsg: [],
+        removeMsg: [],
+        editMsg: [],
         errors: [],
         errorsEdit: [],
         foodItems: [],
@@ -85,13 +89,18 @@ const app = new Vue({
             return re.test(price);
         },
 
-
         addNewItem() {
             this.checkForm();
             if (!this.errors.length) {
                 axios.post('/api/admin/new-item', this.newItem)
                     .then(response => {
                         this.filteredFoodItems.push(this.newItem);
+                        this.messages.push(this.newItem.name + ' has been added to collection')
+                        this.newItem = {
+                            name: '',
+                            price: '',
+                            category: 'Select Dropdown'
+                        }
                         console.log(response);
                     })
                     .catch(err => {
@@ -109,6 +118,7 @@ const app = new Vue({
                 if (!this.errorsEdit.length) {
                     axios.put('/api/menu', { data: item })
                         .then(response => {
+                            this.messages.push(item.name +' has been updated to collections')
                             console.log(response);
                         })
                         .catch(err => {
@@ -131,10 +141,15 @@ const app = new Vue({
                 .catch(err => {
                     console.log(err)
                 });
+            this.messages.push(this.foodItems[itemToRemove].name + ' has been removed from collection')
             this.filteredFoodItems.splice(itemToRemove, 1);
-        }
-    },
+        },
 
+        clearMessage(item) {
+            this.messages.splice(item, 1);
+        }
+
+    },
     created: function () {
         this.getFoodItems();
     }

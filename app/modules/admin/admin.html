@@ -19,7 +19,7 @@
                     <thead>
                         <tr>
                             <th>Item</th>
-                            <th>Price</th>
+                            <th>Price (£)</th>
                             <th>Category</th>
                         </tr>
                     </thead>
@@ -104,12 +104,28 @@
                             </div>
                         </div>
                     </div>
+
                     <p v-if="errors.length">
                         <b>Please correct the following error(s):</b>
                         <ul>
                             <li v-for="error in errors">{{ error }}</li>
                         </ul>
                     </p>
+
+
+
+                    <div class="columns">
+                        <div class="column"></div>
+                        <div class="column is-one-thirds">
+                            <div v-if="messages.length">
+                                <div class="notification is-success">
+                                    <p v-for="item in messages">{{ item }}</p>
+                                    <a @click="clearMessage(item)" class="delete"></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column"></div>
+                    </div>
                 </form>
             </div>
         </div>
@@ -122,8 +138,6 @@
     <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
     <script src="./js/admin.js"></script>
     <link rel="stylesheet" type="text/css" href="./stylesheets/admin.css">
-    <!-- <script src="./stylesheets/admin.css"></script> -->
-
 </body>
 
 </html>
