@@ -192,8 +192,15 @@ var app = new Vue({
     this.socket = io.connect();
     this.socket.on('orderStateChange', orderState => {
       const table = this.tables.find(t => t.order._id === orderState.id);
-      // TODO: If status === 'paid', reset the table -> customers: 0, order: new Order(), occupied: false
-      table.order.status = orderState.status;
+
+      if (orderState.status === 'paid') {
+        table.customers = 0;
+        table.order = new Order();
+        table.occupied = false;
+      } else {
+        table.order.status = orderState.status;
+      }  
+
     });
   }
 });
