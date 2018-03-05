@@ -1,15 +1,19 @@
 const express = require('express');
 const router = express.Router();
-
 const mongoose = require('mongoose');
 
 const orderSchema = require('../schemas/order');
-
 const orderModel = mongoose.model('orders', orderSchema, 'orders');
 
 /* GET users listing. */
-router.get('/', (req, res, next) => {
-  res.send('you\'re at the counter api');
+router.get('/all-orders', (req, res, next) => {
+  let Order = mongoose.model('order', orderSchema);
+  Order
+    .find()
+    .then(data => {
+      res.json(data);
+    })
+    .catch(err => res.send(err));
 });
 
 router.post('/complete-order', (req, res) => {

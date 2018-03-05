@@ -102,22 +102,35 @@ var app = new Vue({
       return total;
     },
 
-    /* TODO: After you've completed the order: 
-      socket.emit('orderStateChange', {
-        "id": <The order's id>,
-        "status": paid
-      });
-    */
-    completeOrder() {
-      axios.post('/api/counter/complete-order', this.currentBill)
-        .then(function (response) {
-          console.log(response);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-      alert('Saving data for table no: ' + JSON.stringify(this.currentBill));
-      console.log(this.currentBill)
+        /* TODO: After you've completed the order: 
+          socket.emit('orderStateChange', {
+            "id": <The order's id>,
+            "status": paid
+          });
+        */
+        completeOrder() {
+            axios.post('/api/counter/complete-order', this.currentBill)
+                .then(function (response) {
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            alert('Saving data for table no: ' + JSON.stringify(this.currentBill));
+            console.log(this.currentBill)
+        },
+
+         // finish this
+        getOrders() {
+            axios.get('/api/counter/all-order')
+                .then(response => {
+                    let data = response.data;                   
+                })
+                .catch(err => console.log(err));
+        }
+    },
+    created: function () {
+        // this.getOrders();
     }
   },
   created: function () {
