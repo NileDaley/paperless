@@ -11,7 +11,6 @@ const OrderLine = mongoose.model('OrderLine', OrderLineSchema);
 const Order = mongoose.model('Order', OrderSchema);
 
 /* GET users listing. */
-// TODO: Populate items and items.item
 router.get('/all-orders', (req, res, next) => {
   Order
     .find()
@@ -23,7 +22,7 @@ router.get('/all-orders', (req, res, next) => {
 
 router.post('/complete-order', (req, res) => {
   const orderToSave = req.body;
-  orderModel.create(orderToSave, (err) => {
+  Order.create(orderToSave, (err) => {
     if (err) {
       console.log('Error Inserting Order #' + orderToSave.orderNo);
     } else {

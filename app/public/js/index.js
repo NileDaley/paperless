@@ -88,6 +88,27 @@ var app = new Vue({
         });
       }).catch(err => console.log(err));
     },
+    getExistingOrders() {
+      axios.get('/api/counter/all-orders')
+          .then(response => {
+
+            let allOrders = response['data'];
+            let existingOrders = allOrders.filter(o => o.status !== 'paid');
+
+            existingOrders.forEach(order => {
+
+              let orderTable = this.tables.find(t => t._id === order.table);
+              orderTable.occupied = true;
+              orderTable.customers = order.customers;
+              orderTable.order.status = order.status;
+              orderTable.order._id = order._id;
+              orderTable.order.items = this.extractItemsFromCourses(order);
+
+            });
+
+          })
+          .catch(err => console.log(err));
+    },
     selectTable(table) {
       this.currentTable = table;
     },
@@ -188,24 +209,34 @@ var app = new Vue({
           'customers': this.currentTable.customers
         };
 
-        console.log(payload);
-        axios
-            .post('/', payload)
-            .then(response => {
-              if (response.status === 201) {
+        if (this.currentTable.order._id === null) {
+          axios.post('/', payload)
+              .then(response => {
+                if (response.status === 201) {
 
-                let submittedOrder = response.data;
+                  let submittedOrder = response['data'];
 
-                // Update the table's order
-                this.currentTable.order._id = submittedOrder._id;
+                  // Update the table's order
+                  this.currentTable.order._id = submittedOrder._id;
+                  this.currentTable.order.status = 'Sent';
+
+                  // Tell the other parts of the system about the new order
+                  this.socket.emit('newOrder', submittedOrder);
+
+                }
+              })
+              .catch(err => console.log(err));
+        } else {
+          axios.patch(`/${this.currentTable.order._id}`, payload)
+              .then(response => {
+
                 this.currentTable.order.status = 'Sent';
+                let updatedOrder = response['data'];
+                this.socket.emit('orderStateChange', updatedOrder);
 
-                // Tell the other parts of the system about the new order
-                this.socket.emit('newOrder', submittedOrder);
-
-              }
-            })
-            .catch(err => console.log(err));
+              })
+              .catch(err => console.log(err));
+        }
       }
     },
     servedOrder() {
@@ -213,43 +244,55 @@ var app = new Vue({
         'id': this.currentTable.order._id,
         'status': 'served'
       });
+    },
+    editOrder() {
+      this.currentTable.order.status = 'pending';
+    },
+    extractItemsFromCourses(order) {
+
+      // Extract all items from each of the courses
+      let items = [];
+      for (let course of ['starters', 'mains', 'sides', 'desserts']) {
+        items = [...order.order[course].items, ...items];
+      }
+
+      items = items.map(line => {
+        return new OrderLine(
+            new FoodItem(
+                line.item._id,
+                line.item.name,
+                line.item.price,
+                line.item.category
+            ),
+            line.quantity,
+            line.status
+        );
+      });
+      return items;
+
     }
   },
   created: function() {
     this.createTables();
     this.getFoodItems();
-
-    axios.get('/api/counter/all-orders')
-        .then(response => {
-
-          let allOrders = response['data'];
-          let currentOrders = allOrders.filter(o => o.status !== 'paid');
-
-          currentOrders.forEach(o => {
-
-            let orderTable = this.tables.find(t => t._id === o.table);
-            orderTable.occupied = true;
-            orderTable.customers = o.customers;
-            orderTable.order.status = o.status;
-
-            //TODO: Set orderTable.items = items from the order courses
-            console.log(o);
-
-          });
-
-        })
-        .catch(err => console.log(err));
+    this.getExistingOrders();
 
     this.socket = io.connect();
-    this.socket.on('orderStateChange', orderState => {
-      const table = this.tables.find(t => t.order._id === orderState.id);
+    this.socket.on('orderStateChange', order => {
+      const table = this.tables.find(t => t._id === order.table);
 
-      if (orderState.status === 'paid') {
+      if (order.status === 'paid') {
+
+        // Reset the table
         table.customers = 0;
         table.order = new Order();
         table.occupied = false;
+
       } else {
-        table.order.status = orderState.status;
+
+        table.order.status = order.status;
+        table.order.items = this.extractItemsFromCourses(order);
+
       }
 
     });
