@@ -8,10 +8,17 @@ class Table {
 }
 
 class Order {
-  constructor(status = "pending", items = []) {
+  constructor(status = 'pending', items = []) {
     this.status = status;
     this.items = items;
     this._id = null;
+  }
+}
+
+class OrderLine {
+  constructor(item, quantity) {
+    this.item = item;
+    this.quantity = quantity;
   }
 }
 
@@ -36,22 +43,22 @@ var app = new Vue({
     socket: null
   },
   computed: {
-    starters: function () {
+    starters: function() {
       return this.getOrderItemsByCategory('starter');
     },
-    mains: function () {
+    mains: function() {
       return this.getOrderItemsByCategory('main');
     },
-    sides: function () {
+    sides: function() {
       return this.getOrderItemsByCategory('side');
     },
-    desserts: function () {
+    desserts: function() {
       return this.getOrderItemsByCategory('dessert');
     },
-    emptyOrder: function () {
+    emptyOrder: function() {
       return this.currentTable.order.items.length === 0;
     },
-    pendingOrder: function () {
+    pendingOrder: function() {
       return this.currentTable.order.status === 'pending';
     }
   },
@@ -63,17 +70,15 @@ var app = new Vue({
       }
     },
     getFoodItems() {
-      axios.get('/api/menu')
-        .then(response => {
-          let data = response.data;
-          // Convert the json response to FoodItem objects and sort alphabetically
-          this.filteredFoodItems = this.foodItems = data
-            .map(item => new FoodItem(item._id, item.name, item.price, item.category))
-            .sort((item, other) => {
-              return item.name.toLowerCase().localeCompare(other.name.toLowerCase());
-            });
-        })
-        .catch(err => console.log(err));
+      axios.get('/api/menu').then(response => {
+        let data = response.data;
+        // Convert the json response to FoodItem objects and sort alphabetically
+        this.filteredFoodItems = this.foodItems = data.map(
+            item => new FoodItem(item._id, item.name, item.price,
+                item.category)).sort((item, other) => {
+          return item.name.toLowerCase().localeCompare(other.name.toLowerCase());
+        });
+      }).catch(err => console.log(err));
     },
     selectTable(table) {
       this.currentTable = table;
@@ -107,18 +112,20 @@ var app = new Vue({
       if (category !== 'all') {
         this.filteredFoodItems = this.filteredFoodItems.filter(item => {
           return item.category === category;
-        })
+        });
       }
 
       if (criteria !== '') {
         this.filteredFoodItems = this.filteredFoodItems.filter(item => {
           return item.name.toLowerCase().includes(criteria.toLowerCase());
-        })
+        });
       }
 
     },
     getOrderItemsByCategory(category) {
-      return this.currentTable.order.items.filter(i => i.item.category === category);
+      return this.currentTable.order.items.filter(
+          i => i.item.category === category
+      );
     },
     addItemToOrder(foodItem) {
 
@@ -136,7 +143,7 @@ var app = new Vue({
 
         // Add the new food item to the order if it doesn't exist
         if (!found) {
-          this.currentTable.order.items.push({ "item": foodItem, "quantity": 1 });
+          this.currentTable.order.items.push(new OrderLine(foodItem, 1));
         }
 
       }
@@ -154,57 +161,62 @@ var app = new Vue({
     },
     submitOrder() {
       if (this.currentTable.customers > 0 && this.pendingOrder) {
+
         let order = this.currentTable.order;
+
         let payload = {
-          "table": this.currentTable._id,
-          "order": order.items,
-          "customers": this.currentTable.customers
-        }
-        axios.post('/', payload)
-          .then(response => {
-            if (response.status === 201) {
+          'table': this.currentTable._id,
+          'order': order.items,
+          'customers': this.currentTable.customers
+        };
 
-              let submittedOrder = response.data;
+        axios
+            .post('/', payload)
+            .then(response => {
+              if (response.status === 201) {
 
-              // Update the table's order
-              this.currentTable.order._id = submittedOrder._id;
-              this.currentTable.order.status = "Sent"
+                let submittedOrder = response.data;
 
-              // Tell the other parts of the system about the new order
-              this.socket.emit('newOrder', submittedOrder);
+                // Update the table's order
+                this.currentTable.order._id = submittedOrder._id;
+                this.currentTable.order.status = 'Sent';
 
-            }
-          })
-          .catch(err => console.log(err));
+                // Tell the other parts of the system about the new order
+                this.socket.emit('newOrder', submittedOrder);
+
+              }
+            })
+            .catch(err => console.log(err));
       }
     },
     servedOrder() {
       this.socket.emit('orderStateChange', {
-        "id": this.currentTable.order._id,
-        "status": "served"
+        'id': this.currentTable.order._id,
+        'status': 'served'
       });
     }
   },
-  created: function () {
+  created: function() {
     this.createTables();
     this.getFoodItems();
     // TODO: Get orders from db
 
     axios.get('/api/counter/all-orders')
-      .then(response => {
-        let allOrders = response['data'];
-        let currentOrders = allOrders.filter(o => o.status !== "paid");
-        // console.log(allOrders);
-        currentOrders.forEach(o => {
-          let orderTable = this.tables.find(t => t._id === o.table);
-          orderTable.occupied = true;
-          orderTable.customers = o.customers;
-          orderTable.order.items = o.items;
-          orderTable.order.status = o.status;
-          console.log(orderTable);
-        });
-      }).catch(err => console.log(err));
-    
+        .then(response => {
+          let allOrders = response['data'];
+          let currentOrders = allOrders.filter(o => o.status !== 'paid');
+          // console.log(allOrders);
+          currentOrders.forEach(o => {
+            let orderTable = this.tables.find(t => t._id === o.table);
+            orderTable.occupied = true;
+            orderTable.customers = o.customers;
+            orderTable.order.items = o.items;
+            orderTable.order.status = o.status;
+            console.log(orderTable);
+          });
+        })
+        .catch(err => console.log(err));
+
     this.socket = io.connect();
     this.socket.on('orderStateChange', orderState => {
       const table = this.tables.find(t => t.order._id === orderState.id);
@@ -215,7 +227,7 @@ var app = new Vue({
         table.occupied = false;
       } else {
         table.order.status = orderState.status;
-      }  
+      }
 
     });
   }
