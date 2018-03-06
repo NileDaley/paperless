@@ -22,10 +22,11 @@ router.post('/', (req, res, next) => {
     table,
     date: moment().format('YYYY-MM-DD HH:MM:SS'),
     customers,
+    status: "sent",
     items: order.map(line => {
       return {
         quantity: line.quantity,
-        item: mongoose.Types.ObjectId(line.item._id)
+        item: line.item
       }
     })
   });

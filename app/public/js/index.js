@@ -189,6 +189,22 @@ var app = new Vue({
     this.createTables();
     this.getFoodItems();
     // TODO: Get orders from db
+
+    axios.get('/api/counter/all-orders')
+      .then(response => {
+        let allOrders = response['data'];
+        let currentOrders = allOrders.filter(o => o.status !== "paid");
+        // console.log(allOrders);
+        currentOrders.forEach(o => {
+          let orderTable = this.tables.find(t => t._id === o.table);
+          orderTable.occupied = true;
+          orderTable.customers = o.customers;
+          orderTable.order.items = o.items;
+          orderTable.order.status = o.status;
+          console.log(orderTable);
+        });
+      }).catch(err => console.log(err));
+    
     this.socket = io.connect();
     this.socket.on('orderStateChange', orderState => {
       const table = this.tables.find(t => t.order._id === orderState.id);

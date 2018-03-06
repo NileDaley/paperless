@@ -2,12 +2,17 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
-const orderSchema = require('../schemas/order');
-const orderModel = mongoose.model('orders', orderSchema, 'orders');
+const OrderSchema = require('../schemas/OrderSchema');
+const OrderLineSchema = require('../schemas/OrderLineSchema');
+const FoodItemSchema = require('../schemas/FoodItemSchema');
+
+const FoodItem = mongoose.model('FoodItem', FoodItemSchema);
+const OrderLine = mongoose.model('OrderLine', OrderLineSchema);
+const Order = mongoose.model('Order', OrderSchema);
 
 /* GET users listing. */
+// TODO: Populate items and items.item
 router.get('/all-orders', (req, res, next) => {
-  let Order = mongoose.model('order', orderSchema);
   Order
     .find()
     .then(data => {
