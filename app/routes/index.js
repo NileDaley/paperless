@@ -37,7 +37,7 @@ router.post('/', (req, res) => {
 
 router.patch('/:id', (req, res) => {
 
-  let {table, order, customers} = req.body;
+  let {table, order, customers, status} = req.body;
 
   Order.findByIdAndUpdate(req.params.id,
       {
@@ -45,7 +45,7 @@ router.patch('/:id', (req, res) => {
           table,
           date: moment().format('YYYY-MM-DD HH:MM:SS'),
           customers,
-          status: 'sent',
+          status,
           order
         }
       }, {'new': true})

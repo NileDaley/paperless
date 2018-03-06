@@ -93,7 +93,7 @@ var app = new Vue({
           .then(response => {
 
             let allOrders = response['data'];
-            let existingOrders = allOrders.filter(o => o.status !== 'paid');
+            let existingOrders = allOrders.filter(o => o.status !== 'paid' && o.status !== 'abandoned');
 
             existingOrders.forEach(order => {
 
@@ -191,23 +191,7 @@ var app = new Vue({
     submitOrder() {
       if (this.currentTable.customers > 0 && this.pendingOrder) {
 
-        let order = this.currentTable.order;
-
-        let courseItems = {};
-        for (let course of ['starter', 'main', 'side', 'dessert']) {
-          let courseObj = {};
-          courseObj.items = order.items.filter(line => line.item.category === course);
-          if (courseObj.items.length > 0) {
-            courseObj.status = 'pending';
-            courseItems[course + 's'] = courseObj;
-          }
-        }
-
-        let payload = {
-          'table': this.currentTable._id,
-          'order': courseItems,
-          'customers': this.currentTable.customers
-        };
+        const payload = this.getOrderPayload();
 
         if (this.currentTable.order._id === null) {
           axios.post('/', payload)
@@ -227,26 +211,54 @@ var app = new Vue({
               })
               .catch(err => console.log(err));
         } else {
-          axios.patch(`/${this.currentTable.order._id}`, payload)
-              .then(response => {
-
-                this.currentTable.order.status = 'Sent';
-                let updatedOrder = response['data'];
-                this.socket.emit('orderStateChange', updatedOrder);
-
-              })
-              .catch(err => console.log(err));
+          payload.status = 'Sent';
+          this.updateOrder(payload);
         }
       }
     },
+    updateOrder(payload) {
+      axios.patch(`/${this.currentTable.order._id}`, payload)
+          .then(response => {
+
+            let updatedOrder = response['data'];
+            this.currentTable.order.status = updatedOrder.status;
+            this.socket.emit('orderStateChange', updatedOrder);
+
+          })
+          .catch(err => console.log(err));
+    },
+    getOrderPayload() {
+      let order = this.currentTable.order;
+
+      let courseItems = {};
+      for (let course of ['starter', 'main', 'side', 'dessert']) {
+        let courseObj = {};
+        courseObj.items = order.items.filter(line => line.item.category === course);
+        if (courseObj.items.length > 0) {
+          courseObj.status = 'pending';
+          courseItems[course + 's'] = courseObj;
+        }
+      }
+
+      return {
+        'table': this.currentTable._id,
+        'order': courseItems,
+        'customers': this.currentTable.customers
+      };
+
+    },
     servedOrder() {
-      this.socket.emit('orderStateChange', {
-        'id': this.currentTable.order._id,
-        'status': 'served'
-      });
+      let payload = this.getOrderPayload();
+      payload.status = 'served';
+      this.updateOrder(payload);
     },
     editOrder() {
       this.currentTable.order.status = 'pending';
+    },
+    clearTable() {
+      let payload = this.getOrderPayload();
+      payload.status = 'abandoned';
+      this.updateOrder(payload);
     },
     extractItemsFromCourses(order) {
 
@@ -281,7 +293,7 @@ var app = new Vue({
     this.socket.on('orderStateChange', order => {
       const table = this.tables.find(t => t._id === order.table);
 
-      if (order.status === 'paid') {
+      if (order.status === 'paid' || order.status === 'abandoned') {
 
         // Reset the table
         table.customers = 0;
