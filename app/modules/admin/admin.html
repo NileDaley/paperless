@@ -14,62 +14,21 @@
                 <i class="fas fa-cog"></i>
                 Admin Panel
             </h1>
-            <div class="menuItems content box">
-                <table class="table is-bordered is-striped">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Price (£)</th>
-                            <th>Category</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(foodItem, index) in filteredFoodItems" :key="index">
-                            <td>
-                                <input v-bind:class="{'is-static': !foodItem.editing}" type="text" class="input" v-model="foodItem.name">
-                            </td>
-                            <td>
-                                <input v-bind:class="{'is-static': !foodItem.editing}" type="text" class="input" v-model="foodItem.price">
-                            </td>
-                            <td>
-                                <div class="select is-rounded" v-if="foodItem.editing">
-                                    <select v-model="foodItem.category">
-                                        <option>Select Dropdown</option>
-                                        <option>starter</option>
-                                        <option>main</option>
-                                        <option>side</option>
-                                        <option>dessert</option>
-                                    </select>
+            <form novalidate="true">
+                <div class="menuItems content box">
+                    <div class="columns">
+                        <div class="column"></div>
+                        <div class="column is-one-thirds">
+                            <div v-if="messages.length">
+                                <div class="notification is-success">
+                                    <p v-for="item in messages">{{ item }}</p>
+                                    <a @click="clearMessage(item)" class="delete"></a>
                                 </div>
-                                <div v-else>
-                                    <input type="text" class="input is-static" v-bind:value="foodItem.category">
-                                </div>
-                            </td>
-                            <td>
-                                <a @click="removeItem(index)" class="button is-danger is-outlined">
-                                    <span>Delete</span>
-                                    <span class="icon is-small">
-                                        <i class="fas fa-times"></i>
-                                    </span>
-                                </a>
-                            </td>
-                            <td>
-                                <button class="button is-fullwidth" v-on:click="editItem(index)">{{ foodItem.editing ? 'Save': 'Edit' }}</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div>
-                    <p v-if="errorsEdit.length">
-                        <b>Please correct the following error(s):</b>
-                        <ul>
-                            <li v-for="error in errorsEdit">{{ error }}</li>
-                        </ul>
-                    </p>
-                </div>
-                <form novalidate="true">
+                            </div>
+                        </div>
+                        <div class="column"></div>
+                    </div>
                     <div class="field">
-
                         <div class="columns">
                             <div class="column">
                                 <label class="label">Food Name</label>
@@ -104,6 +63,58 @@
                             </div>
                         </div>
                     </div>
+                    <table class="table is-bordered is-striped">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price (£)</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(foodItem, index) in filteredFoodItems" :key="index">
+                                <td>
+                                    <input v-bind:class="{'is-static': !foodItem.editing}" type="text" class="input" v-model="foodItem.name">
+                                </td>
+                                <td>
+                                    <input v-bind:class="{'is-static': !foodItem.editing}" type="text" class="input" v-model="foodItem.price">
+                                </td>
+                                <td>
+                                    <div class="select is-rounded" v-if="foodItem.editing">
+                                        <select v-model="foodItem.category">
+                                            <option>Select Dropdown</option>
+                                            <option>starter</option>
+                                            <option>main</option>
+                                            <option>side</option>
+                                            <option>dessert</option>
+                                        </select>
+                                    </div>
+                                    <div v-else>
+                                        <input type="text" class="input is-static" v-bind:value="foodItem.category">
+                                    </div>
+                                </td>
+                                <td>
+                                    <a @click="removeItem(index)" class="button is-danger is-outlined">
+                                        <span>Delete</span>
+                                        <span class="icon is-small">
+                                            <i class="fas fa-times"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a class="button is-fullwidth" v-on:click="editItem(index)">{{ foodItem.editing ? 'Save': 'Edit' }}</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div>
+                        <p v-if="errorsEdit.length">
+                            <b>Please correct the following error(s):</b>
+                            <ul>
+                                <li v-for="error in errorsEdit">{{ error }}</li>
+                            </ul>
+                        </p>
+                    </div>
 
                     <p v-if="errors.length">
                         <b>Please correct the following error(s):</b>
@@ -111,26 +122,10 @@
                             <li v-for="error in errors">{{ error }}</li>
                         </ul>
                     </p>
-
-
-
-                    <div class="columns">
-                        <div class="column"></div>
-                        <div class="column is-one-thirds">
-                            <div v-if="messages.length">
-                                <div class="notification is-success">
-                                    <p v-for="item in messages">{{ item }}</p>
-                                    <a @click="clearMessage(item)" class="delete"></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="column"></div>
-                    </div>
-                </form>
+            </form>
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue2-filters/dist/vue2-filters.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>

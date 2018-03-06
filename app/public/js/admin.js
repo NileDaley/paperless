@@ -12,9 +12,6 @@ const app = new Vue({
     el: '#app',
     data: {
         messages: [],
-        addMsg: [],
-        removeMsg: [],
-        editMsg: [],
         errors: [],
         errorsEdit: [],
         foodItems: [],
@@ -95,7 +92,9 @@ const app = new Vue({
                 axios.post('/api/admin/new-item', this.newItem)
                     .then(response => {
                         this.filteredFoodItems.push(this.newItem);
-                        this.messages.push(this.newItem.name + ' has been added to collection')
+                        let removeIndex = this.messages.indexOf(this.newItem.name + ' has been added')
+                        this.messages.push(this.newItem.name + ' has been added')
+                        setTimeout(() => this.clearMessage(removeIndex), 10000);
                         this.newItem = {
                             name: '',
                             price: '',
@@ -118,7 +117,9 @@ const app = new Vue({
                 if (!this.errorsEdit.length) {
                     axios.put('/api/menu', { data: item })
                         .then(response => {
-                            this.messages.push(item.name +' has been updated to collections')
+                            let removeIndex = this.messages.indexOf(item.name + ' has been updated')     
+                            this.messages.push(item.name + ' has been updated')
+                            setTimeout(() => this.clearMessage(removeIndex), 10000);
                             console.log(response);
                         })
                         .catch(err => {
@@ -141,13 +142,16 @@ const app = new Vue({
                 .catch(err => {
                     console.log(err)
                 });
-            this.messages.push(this.foodItems[itemToRemove].name + ' has been removed from collection')
+
+            let removeIndex = this.messages.indexOf(this.foodItems[itemToRemove].name + ' has been removed')
+            this.messages.push(this.foodItems[itemToRemove].name + ' has been removed')
+            setTimeout(() => this.clearMessage(removeIndex), 10000);
             this.filteredFoodItems.splice(itemToRemove, 1);
         },
 
         clearMessage(item) {
             this.messages.splice(item, 1);
-        }
+        }       
 
     },
     created: function () {
