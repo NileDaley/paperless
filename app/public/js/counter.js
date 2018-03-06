@@ -80,7 +80,7 @@ var app = new Vue({
 
     totalPreTax() {
       let total = 0;
-      /* TODO: Update forEach statement to reflect changes of order structure. See /api/all-orders for new structure /*
+      /* TODO: Update forEach statement to reflect changes of order structure. See /api/all-orders for new structure */
       this.tables[this.currentBill.tableNo - 1].order.forEach(element => {
         const itemTotal = element.quantity * element.price;
         total += itemTotal;
