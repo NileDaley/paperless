@@ -56,10 +56,13 @@ var app = new Vue({
       return this.getOrderItemsByCategory('dessert');
     },
     emptyOrder: function() {
-      return this.currentTable.order.items.length === 0;
+      return this.orderItems.length === 0;
     },
     pendingOrder: function() {
       return this.currentTable.order.status === 'pending';
+    },
+    orderItems: function() {
+      return this.currentTable.order.items;
     }
   },
   methods: {
@@ -123,7 +126,7 @@ var app = new Vue({
 
     },
     getOrderItemsByCategory(category) {
-      return this.currentTable.order.items.filter(
+      return this.orderItems.filter(
           i => i.item.category === category
       );
     },
@@ -133,7 +136,7 @@ var app = new Vue({
         let found = false;
 
         // If the item is already on the order, update it's quantity
-        this.currentTable.order.items.forEach(i => {
+        this.orderItems.forEach(i => {
           if (i.item === foodItem) {
             i.quantity++;
             found = true;
@@ -143,7 +146,7 @@ var app = new Vue({
 
         // Add the new food item to the order if it doesn't exist
         if (!found) {
-          this.currentTable.order.items.push(new OrderLine(foodItem, 1));
+          this.orderItems.push(new OrderLine(foodItem, 1));
         }
 
       }
@@ -151,11 +154,11 @@ var app = new Vue({
     },
     removeItemFromOrder(foodItem) {
       if (this.pendingOrder) {
-        let item = this.currentTable.order.items.find(i => i.item === foodItem);
+        let item = this.orderItems.find(i => i.item === foodItem);
         if (item.quantity > 1) {
           item.quantity--;
         } else {
-          this.currentTable.order.items.splice(this.currentTable.order.items.indexOf(item), 1);
+          this.orderItems.splice(this.orderItems.indexOf(item), 1);
         }
       }
     },
