@@ -2,10 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const OrderLineSchema = require('./OrderLineSchema');
 const BillSchema = require('./Bill');
+const CourseSchema = require('./CourseSchema');
 
 const OrderSchema = new Schema({
   table: Number,
-  items: [ OrderLineSchema ],
+  order: CourseSchema,
   date: String,
   customers: Number,
   status: String,

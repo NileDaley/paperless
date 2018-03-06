@@ -23,12 +23,7 @@ router.post('/', (req, res, next) => {
     date: moment().format('YYYY-MM-DD HH:MM:SS'),
     customers,
     status: "sent",
-    items: order.map(line => {
-      return {
-        quantity: line.quantity,
-        item: line.item
-      }
-    })
+    order
   });
 
   newOrder.save()

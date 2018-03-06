@@ -16,9 +16,10 @@ class Order {
 }
 
 class OrderLine {
-  constructor(item, quantity) {
+  constructor(item, quantity, status) {
     this.item = item;
     this.quantity = quantity;
+    this.status = status;
   }
 }
 
@@ -77,8 +78,12 @@ var app = new Vue({
         let data = response.data;
         // Convert the json response to FoodItem objects and sort alphabetically
         this.filteredFoodItems = this.foodItems = data.map(
-            item => new FoodItem(item._id, item.name, item.price,
-                item.category)).sort((item, other) => {
+            item => new FoodItem(
+                item._id,
+                item.name,
+                item.price,
+                item.category)
+        ).sort((item, other) => {
           return item.name.toLowerCase().localeCompare(other.name.toLowerCase());
         });
       }).catch(err => console.log(err));
@@ -146,7 +151,7 @@ var app = new Vue({
 
         // Add the new food item to the order if it doesn't exist
         if (!found) {
-          this.orderItems.push(new OrderLine(foodItem, 1));
+          this.orderItems.push(new OrderLine(foodItem, 1, 'pending'));
         }
 
       }
@@ -167,12 +172,23 @@ var app = new Vue({
 
         let order = this.currentTable.order;
 
+        let courseItems = {};
+        for (let course of ['starter', 'main', 'side', 'dessert']) {
+          let courseObj = {};
+          courseObj.items = order.items.filter(line => line.item.category === course);
+          if (courseObj.items.length > 0) {
+            courseObj.status = 'pending';
+            courseItems[course + 's'] = courseObj;
+          }
+        }
+
         let payload = {
           'table': this.currentTable._id,
-          'order': order.items,
+          'order': courseItems,
           'customers': this.currentTable.customers
         };
 
+        console.log(payload);
         axios
             .post('/', payload)
             .then(response => {
@@ -202,21 +218,25 @@ var app = new Vue({
   created: function() {
     this.createTables();
     this.getFoodItems();
-    // TODO: Get orders from db
 
     axios.get('/api/counter/all-orders')
         .then(response => {
+
           let allOrders = response['data'];
           let currentOrders = allOrders.filter(o => o.status !== 'paid');
-          // console.log(allOrders);
+
           currentOrders.forEach(o => {
+
             let orderTable = this.tables.find(t => t._id === o.table);
             orderTable.occupied = true;
             orderTable.customers = o.customers;
-            orderTable.order.items = o.items;
             orderTable.order.status = o.status;
-            console.log(orderTable);
+
+            //TODO: Set orderTable.items = items from the order courses
+            console.log(o);
+
           });
+
         })
         .catch(err => console.log(err));
 

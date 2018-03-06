@@ -5,7 +5,10 @@ const FoodItemSchema = require('./FoodItemSchema');
 const OrderLineSchema = new Schema({
   quantity: Number,
   item: FoodItemSchema,
-  status: Boolean
+  status: {
+    type: String,
+    enum: ['pending', 'sent', 'cooking', 'ready', 'served']
+  }
 });
 
 module.exports = OrderLineSchema;

@@ -1,8 +1,6 @@
-
 var SelectTable = {
   template: '<div><h2>Select a table to see the order</h2></div>'
-}
-
+};
 
 var app = new Vue({
   el: '#app',
@@ -48,23 +46,23 @@ var app = new Vue({
         tableNo: 2,
         orderNo: 102,
         order:
-          [
-            {
-              item: '2food1',
-              quantity: 1,
-              price: 3.00
-            },
-            {
-              item: '2food2',
-              quantity: 1,
-              price: 3.00
-            },
-            {
-              item: '2food3',
-              quantity: 1,
-              price: 3.00
-            }
-          ]
+            [
+              {
+                item: '2food1',
+                quantity: 1,
+                price: 3.00
+              },
+              {
+                item: '2food2',
+                quantity: 1,
+                price: 3.00
+              },
+              {
+                item: '2food3',
+                quantity: 1,
+                price: 3.00
+              }
+            ]
       }
     ]
   },
@@ -82,6 +80,7 @@ var app = new Vue({
 
     totalPreTax() {
       let total = 0;
+      /* TODO: Update forEach statement to reflect changes of order structure. See /api/all-orders for new structure /*
       this.tables[this.currentBill.tableNo - 1].order.forEach(element => {
         const itemTotal = element.quantity * element.price;
         total += itemTotal;
@@ -102,38 +101,35 @@ var app = new Vue({
       return total;
     },
 
-        /* TODO: After you've completed the order: 
-          socket.emit('orderStateChange', {
-            "id": <The order's id>,
-            "status": paid
+    /* TODO: After you've completed the order:
+      socket.emit('orderStateChange', {
+        "id": <The order's id>,
+        "status": paid
+      });
+    */
+    completeOrder() {
+      axios.post('/api/counter/complete-order', this.currentBill)
+          .then(function(response) {
+            console.log(response);
+          })
+          .catch(function(error) {
+            console.log(error);
           });
-        */
-        completeOrder() {
-            axios.post('/api/counter/complete-order', this.currentBill)
-                .then(function (response) {
-                    console.log(response);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            alert('Saving data for table no: ' + JSON.stringify(this.currentBill));
-            console.log(this.currentBill)
-        },
-
-         // finish this
-        getOrders() {
-            axios.get('/api/counter/all-order')
-                .then(response => {
-                    let data = response.data;                   
-                })
-                .catch(err => console.log(err));
-        }
+      alert('Saving data for table no: ' + JSON.stringify(this.currentBill));
+      console.log(this.currentBill);
     },
-    created: function () {
-        // this.getOrders();
+
+    // finish this
+    getOrders() {
+      axios.get('/api/counter/all-order')
+          .then(response => {
+            let data = response.data;
+          })
+          .catch(err => console.log(err));
     }
   },
-  created: function () {
+  created: function() {
+    // this.getOrders();
     this.socket = io.connect();
     this.socket.on('newOrder', newOrder => {
       // Do something here with new orders
