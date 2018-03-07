@@ -101,12 +101,6 @@ var app = new Vue({
       return total;
     },
 
-    /* TODO: After you've completed the order:
-      socket.emit('orderStateChange', {
-        "id": <The order's id>,
-        "status": paid
-      });
-    */
     completeOrder() {
       axios.post('/api/counter/complete-order', this.currentBill)
           .then(function(response) {
