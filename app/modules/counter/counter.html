@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" card-content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Counter View</title>
+</head>
+
+<body>
+    <!-- ========= -->
+    <!-- Your HTML -->
+    <!-- ========= -->
+    <div class="section">
+        <div class="container" id="app">
+            <h1 class="title">Counter View</h1>
+            <div class="columns" id="tables">
+                <div class="column">
+                    <button id="btn" class="button is-large is-fullwidth" @click="showTableOrder(1)">1</button>
+                </div>
+                <div class="column">
+                    <button class="button is-large is-fullwidth" v-on:click="showTableOrder(2)">2</button>
+                </div>
+                <div class="column">
+                    <button class="button is-large is-fullwidth" v-on:click="showTableOrder(3)">3</button>
+                </div>
+                <div class="column">
+                    <button class="button is-large is-fullwidth" v-on:click="showTableOrder(4)">4</button>
+                </div>
+                <div class="column">
+                    <button class="button is-large is-fullwidth" v-on:click="showTableOrder(5)">5</button>
+                </div>
+                <div class="column">
+                    <button class="button is-large is-fullwidth" v-on:click="showTableOrder(6)">6</button>
+                </div>
+            </div>
+            <br>
+            <div id="selectTable">
+
+                <select-table v-if="!selected"></select-table>
+
+                <div v-if="selected" class="content box">
+
+                    <table class="table is-bordered">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Item Total</h>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in tables[this.currentBill.tableNo-1].order">
+                                <td>{{ item.item }}</td>
+                                <td>{{ item.price | currency('£') }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.price * item.quantity | currency('£') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <br>
+
+                    <div class="columns">
+
+                        <div class="column">
+                            <h4 class="has-text-weight-bold">Table No: {{ tables[this.currentBill.tableNo - 1].tableNo }} - Order No: {{ tables[this.currentBill.tableNo
+                                - 1].orderNo }}</h4>
+                        </div>
+
+                        <div class="column">
+                            <table class="table is-narrow is-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th>TOTAL:</th>
+                                        <th>{{ totalPreTax() | currency('£') }}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>VAT @ 20%:</th>
+                                        <th>{{ calculateVAT() | currency('£') }}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>TOTAL + VAT:</th>
+                                        <th>{{ calculateTotal() | currency('£') }}
+                                        </th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <nav class="level">
+                        <!-- Left side -->
+                        <div class="level-left"> </div>
+
+                        <!-- Right side -->
+                        <div class="level-right">
+                            <a @click="completeOrder" class="button is-success desktop-is-pulled-right">
+                                <span class="icon is-small">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                                <span>Complete Order</span>
+                            </a>
+                        </div>
+
+                    </nav>
+
+                </div>
+
+            </div>
+        </div>
+        <!-- ========= -->
+        <!-- Libraries -->
+        <!-- ========= -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue2-filters/dist/vue2-filters.min.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+
+
+        <script src="./js/counter.js"></script>
+
+</body>
+
+</html>
