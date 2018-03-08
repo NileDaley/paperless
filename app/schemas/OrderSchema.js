@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const OrderLineSchema = require('./OrderLineSchema');
+const BillSchema = require('./Bill');
+const CourseSchema = require('./CourseSchema');
 
 const OrderSchema = new Schema({
   table: Number,
-  items: [{
-    quantity: Number,
-    item: { type: Schema.Types.ObjectId, ref: 'OrderLine' }
-  }],
+  order: CourseSchema,
   date: String,
   customers: Number,
   status: String,
-  bill: { type: Schema.Types.ObjectId, ref: 'Bill' }  
+  bill: BillSchema,
 });
 
 module.exports = OrderSchema;

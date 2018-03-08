@@ -14,7 +14,7 @@ block content
             .columns(v-if="currentTable")
 
               // Side Bar
-              .column.is-one-third
+              .column.is-narrow
                 nav.panel
                   p.panel-heading.has-text-centered
                     | Table {{currentTable._id}}
@@ -118,7 +118,7 @@ block content
                   #orderControls(v-if="!emptyOrder")
                     .columns
                       .column.is-6.is-offset-3
-                        button.button.is-success.is-fullwidth(:disabled="currentTable.customers <= 0" @click="submitOrder()" v-if="pendingOrder") Submit
+                        button.button.is-success.is-fullwidth(:disabled="currentTable.customers <= 0" @click="submitOrder()" v-if="pendingOrder") {{ currentTable.order._id === null ? 'Submit' : 'Update' }}
                         button.button.is-success.is-fullwidth(v-if="currentTable.order.status === 'ready'" @click="servedOrder()") Food Served
   script(src="/js/index.js")
 
