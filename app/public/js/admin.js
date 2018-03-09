@@ -11,6 +11,7 @@ class FoodItem {
 const app = new Vue({
     el: '#app',
     data: {
+        loginError: [],
         messages: [],
         errors: [],
         errorsEdit: [],
@@ -157,8 +158,14 @@ const app = new Vue({
         },
 
         checkPassword() {
-            if (this.password === this.testPassword) {
-                loggedIn = true;
+            // this.checkLogIn();
+            this.loginError = []
+            if( !this.password ) {
+                this.loginError.push("Please enter a password")
+            } else if (this.password === this.testPassword) {
+                this.loggedIn = true;
+            } else {
+                this.loginError.push("Incorrect Password!");
             }
         }
 
