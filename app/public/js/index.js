@@ -291,6 +291,7 @@ var app = new Vue({
 
     this.socket = io.connect();
     this.socket.on('orderStateChange', order => {
+      console.log(order);
       const table = this.tables.find(t => t._id === order.table);
 
       if (order.status === 'paid' || order.status === 'abandoned') {
