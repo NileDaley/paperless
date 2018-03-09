@@ -21,7 +21,10 @@ const app = new Vue({
             name: '',
             price: '',
             category: 'Select Dropdown'
-        }
+        },
+        password: '',
+        testPassword: 'Admin',
+        loggedIn: false
     },
     methods: {
         getFoodItems() {
@@ -117,7 +120,7 @@ const app = new Vue({
                 if (!this.errorsEdit.length) {
                     axios.put('/api/menu', { data: item })
                         .then(response => {
-                            let removeIndex = this.messages.indexOf(item.name + ' has been updated')     
+                            let removeIndex = this.messages.indexOf(item.name + ' has been updated')
                             this.messages.push(item.name + ' has been updated')
                             setTimeout(() => this.clearMessage(removeIndex), 10000);
                             console.log(response);
@@ -151,10 +154,17 @@ const app = new Vue({
 
         clearMessage(item) {
             this.messages.splice(item, 1);
-        }       
+        },
+
+        checkPassword() {
+            if (this.password === this.testPassword) {
+                loggedIn = true;
+            }
+        }
 
     },
     created: function () {
         this.getFoodItems();
+        // this.loggedIn = false;
     }
 })
