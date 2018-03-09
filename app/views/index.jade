@@ -9,21 +9,21 @@ block content
             h2.subtitle Tables
             #tables.columns.is-mobile.is-multiline.is-centered
               .column.is-3.is-2-widescreen(v-for="t in tables")
-                .button.is-fullwidth(:class="{ 'is-active': currentTable === t, 'is-info': t.occupied, 'is-warning': t.order.status === 'cooking', 'is-danger': t.order.status === 'ready', 'is-success': t.order.status === 'served'}" @click="selectTable(t)")
-                  | {{t._id}}
+                .button.is-fullwidth(:class="{ 'is-active': currentTable === t, 'is-info': isOccupied(t.number), 'is-warning': t.ticket.status === 'cooking', 'is-danger': t.ticket.status === 'ready', 'is-success': t.ticket.status === 'served'}" @click="selectTable(t)")
+                  | {{t.number}}
             .columns(v-if="currentTable")
 
               // Side Bar
               .column.is-narrow
                 nav.panel
                   p.panel-heading.has-text-centered
-                    | Table {{currentTable._id}}
-                  div(v-if="currentTable.order.status === 'pending'")
+                    | Table {{currentTable.number}}
+                  div(v-if="currentTable.ticket.status === 'pending'")
                     // Customer Counter
                     .panel-block
                       .field.has-addons(style="width: 100%;")
                         p.control.is-expanded
-                          a.button.is-fullwidth.is-small(:disabled="currentTable.customers === 0" @click="removeCustomer()" )
+                          a.button.is-fullwidth.is-small(:disabled="this.currentTable.customers <= 0" @click="removeCustomer()" )
                             span.icon.has-text-danger
                               i.fas.fa-user-times
                         p.control.is-expanded
@@ -60,11 +60,11 @@ block content
                 .box
                   p.subtitle
                     span Order Details
-                    span.is-pulled-right.is-capitalized Status: {{currentTable.order.status}}
+                    span.is-pulled-right.is-capitalized Status: {{currentTable.ticket.status}}
                   p.has-text-centered(v-if="emptyOrder") No items on order
-                  #starters(v-if="starters.length > 0")
+                  #starters(v-if="starters.items.length > 0")
                     p.label Starters
-                     p.columns.is-marginless.is-mobile(v-for="starter of starters")
+                     p.columns.is-marginless.is-mobile(v-for="starter of starters.items")
                       span.column {{starter.item.name}}
                       span.column.has-text-right
                         a.link(@click="removeItemFromOrder(starter.item)" v-if="pendingOrder")
@@ -75,9 +75,9 @@ block content
                           span.icon
                             i.fas.fa-plus
 
-                  #mains(v-if="mains.length > 0")
+                  #mains(v-if="mains.items.length > 0")
                     p.label Mains
-                    p.columns.is-marginless.is-mobile(v-for="main of mains")
+                    p.columns.is-marginless.is-mobile(v-for="main of mains.items")
                       span.column {{main.item.name}}
                       span.column.has-text-right
                         a.link(@click="removeItemFromOrder(main.item)" v-if="pendingOrder")
@@ -88,9 +88,9 @@ block content
                           span.icon
                             i.fas.fa-plus
 
-                  #sides(v-if="sides.length > 0")
+                  #sides(v-if="sides.items.length > 0")
                     p.label Sides
-                    p.columns.is-marginless.is-mobile(v-for="side of sides")
+                    p.columns.is-marginless.is-mobile(v-for="side of sides.items")
                       span.column {{side.item.name}}
                       span.column.has-text-right
                         a.link(@click="removeItemFromOrder(side.item)" v-if="pendingOrder")
@@ -101,9 +101,9 @@ block content
                           span.icon
                             i.fas.fa-plus
 
-                  #desserts(v-if="desserts.length > 0")
+                  #desserts(v-if="desserts.items.length > 0")
                     p.label Desserts
-                    p.columns.is-marginless.is-mobile(v-for="dessert of desserts")
+                    p.columns.is-marginless.is-mobile(v-for="dessert of desserts.items")
                       span.column {{dessert.item.name}}
                       span.column.has-text-right
                         a.link(@click="removeItemFromOrder(dessert.item)" v-if="pendingOrder")
@@ -118,7 +118,7 @@ block content
                   #orderControls(v-if="!emptyOrder")
                     .columns
                       .column.is-6.is-offset-3
-                        button.button.is-success.is-fullwidth(:disabled="currentTable.customers <= 0" @click="submitOrder()" v-if="pendingOrder") {{ currentTable.order._id === null ? 'Submit' : 'Update' }}
-                        button.button.is-success.is-fullwidth(v-if="currentTable.order.status === 'ready'" @click="servedOrder()") Food Served
+                        button.button.is-success.is-fullwidth(:disabled="currentTable.customers <= 0" @click="submitOrder()" v-if="pendingOrder") {{ currentTable.ticket._id === null ? 'Submit' : 'Update' }}
+                        button.button.is-success.is-fullwidth(v-if="currentTable.ticket.status === 'ready'" @click="servedOrder()") Food Served
   script(src="/js/index.js")
 

@@ -1,8 +1,9 @@
 class Ticket {
-  constructor({ _id, customers, date, order, status, table }) {
+  constructor({ _id, customers, date, updatedAt, order, status, table }) {
     this._id = _id;
     this.customers = customers;
     this.date = date;
+    this.updatedAt = updatedAt;
     this.order = new Order(order);
     this.status = status;
     this.table = table;
@@ -34,7 +35,7 @@ class Course {
 class OrderItem {
   constructor({ _id, item, quantity, status }) {
     this._id = _id;
-    this.item = item;
+    this.item = new FoodItem(item);
     this.quantity = quantity;
     this.status = status;
   }
@@ -42,7 +43,7 @@ class OrderItem {
 
 class FoodItem {
   constructor({ _id, name, category, price }) {
-    this._id = id;
+    this._id = _id;
     this.name = name;
     this.category = category;
     this.price = price;
@@ -132,6 +133,12 @@ var app = new Vue({
           }
         });
       }, 1000);
+    },
+    removeTicket(ticket) {
+      this.tickets.splice(this.tickets.indexOf(ticket), 1);
+    },
+    acceptTicket(ticket) {
+      ticket.status = 'cooking';
     }
   },
   created: function () {
@@ -146,6 +153,10 @@ var app = new Vue({
       const ticket = this.tickets.find(t => t._id === orderState._id);
       ticket.date = orderState.date;
       ticket.order = new Order(orderState.order);
+      ticket.status = orderState.status;
+      if (orderState.updatedAt) {
+        ticket.updatedAt = orderState.updatedAt;
+      }
       // Update order state. Show big notification on ticket if state is abandoned
     });
   }
