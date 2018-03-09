@@ -10,14 +10,37 @@
 <body>
     <div id="app">
         <template v-if="loggedIn === false">
-            <div class="field">
-                <label class="label">Enter Password To Enter Admin Panel</label>
-                <div class="control">
-                    <input class="input" type="text" placeholder="Password" v-model="password">
+            <div class="section">
+                <div class="container">
+
+                    <div class="columns">
+                        <div class="column"></div>
+                        <div class="column" id="passwordText">
+                            <div class="field">
+                                <label class="label">Enter Password To Enter Admin Panel</label>
+                                <div class="control">
+                                    <p class="control has-icons-left">
+                                        <input class="input" type="text" placeholder="Password" v-model="password">
+                                        <span class="icon is-small is-left">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                </div>
+                            </div>
+                            <div>
+                                <p v-if="loginError.length">
+                                    <b>Please correct the following error:</b>
+                                    <ul>
+                                        <li v-for="error in loginError">{{ error }}</li>
+                                    </ul>
+                                </p>
+                            </div>
+                            <div class="control">
+                                <a @click="checkPassword()" class="button is-primary">Submit</a>
+                            </div>
+                        </div>
+                        <div class="column"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="control">
-                <a @click="checkPassword()" class="button is-primary">Submit</a>
             </div>
         </template>
         <template v-else-if="loggedIn === true">
