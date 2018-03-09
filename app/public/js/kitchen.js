@@ -92,27 +92,20 @@ var app = new Vue({
       this.checkCourseStatus(tableNumber, course, dish);
     },
     checkCourseStatus(tableNumber, courseName, dish) {
+
       const course = this.getCourse(courseName, tableNumber);
+      const ticket = this.tickets.find(t => t.table === tableNumber);
 
       // Find any pending orders
       const anyPending = course.items.find(item => item.status === 'pending');
 
       if (anyPending === undefined) {
-
         course.status = 'ready';
-        
-        // Find and clone the ticket, and remove "elapsed" from it
-        const ticket = this.tickets.find(t => t.table === tableNumber);
-
-        axios.patch(`/${ticket._id}`, ticket)
-          .then(response => {
-            this.socket.emit('orderStateChange', ticket);
-          })
-          .catch(err => console.error(err));
-        
-      } else {
+      } else if (course.status !== 'cooking') {
         course.status = 'pending';
       }
+
+      this.updateTicket(ticket);
 
     },
     updateOrderTimes() {
@@ -139,6 +132,14 @@ var app = new Vue({
     },
     acceptTicket(ticket) {
       ticket.status = 'cooking';
+      this.updateTicket(ticket);
+    },
+    updateTicket(ticket) {
+      axios.patch(`/${ticket._id}`, ticket)
+        .then(response => {
+          this.socket.emit('orderStateChange', ticket);
+        })
+        .catch(err => console.error(err));
     }
   },
   created: function () {
