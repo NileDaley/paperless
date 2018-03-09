@@ -124,10 +124,9 @@ var app = new Vue({
             // orderTable.order._id = order._id;
             // orderTable.order.items = this.extractItemsFromCourses(order);
             let ticket = new Ticket(order._id, order.status, order.date, order.order);
-            console.log(ticket);
-            console.log(orderTable.ticket);
+
             orderTable.ticket = new Ticket(order._id, order.status, order.date, order.order);
-            console.log(orderTable.ticket);
+
           });
 
         })
@@ -272,6 +271,36 @@ var app = new Vue({
       let payload = this.getOrderPayload();
       payload.status = 'abandoned';
       this.updateOrder(payload);
+    },
+    anyCourseReady(table) {
+      let anyReady = false;
+      ['starters', 'mains', 'sides', 'desserts'].forEach(course => {
+        if (table.ticket.order[course].status === 'ready') {
+          anyReady = true;
+        }
+      })
+      return anyReady;
+    },
+    getTableClass(table) {
+      if (this.anyCourseReady(table)) {
+        return 'is-danger';
+      } else {
+
+        let className;
+        if (table.customers > 0) {
+          className = 'is-info';
+        }
+
+        switch (table.ticket.status) {
+          case 'cooking':
+            className = 'is-warning';
+            break;
+          case 'served':
+            className = 'is-success'  
+        }
+
+        return className;
+      }
     }
   },
   created: function () {
@@ -281,7 +310,6 @@ var app = new Vue({
 
     this.socket = io.connect();
     this.socket.on('orderStateChange', order => {
-      console.log(order);
       const table = this.tables.find(t => t.number === order.table);
 
       if (order.status === 'paid' || order.status === 'abandoned') {
