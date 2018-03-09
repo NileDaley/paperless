@@ -20,51 +20,9 @@ var app = new Vue({
         price: 0
       }
     },
-    tables: [
-      {
-        tableNo: 1,
-        orderNo: 101,
-        order: [
-          {
-            item: 'food1',
-            quantity: 3,
-            price: 3.00
-          },
-          {
-            item: 'food2',
-            quantity: 2,
-            price: 1.50
-          },
-          {
-            item: 'food3',
-            quantity: 1,
-            price: 6.50
-          }
-        ]
-      },
-      {
-        tableNo: 2,
-        orderNo: 102,
-        order:
-            [
-              {
-                item: '2food1',
-                quantity: 1,
-                price: 3.00
-              },
-              {
-                item: '2food2',
-                quantity: 1,
-                price: 3.00
-              },
-              {
-                item: '2food3',
-                quantity: 1,
-                price: 3.00
-              }
-            ]
-      }
-    ]
+    existingOrders: [],
+    testOrders: [],
+    tables: []
   },
   components: {
     'select-table': SelectTable
@@ -115,15 +73,41 @@ var app = new Vue({
 
     // finish this
     getOrders() {
-      axios.get('/api/counter/all-order')
+      axios.get('/api/counter/all-orders')
           .then(response => {
-            let data = response.data;
+            let allOrders = response['data'];
+            let existingOrders = allOrders.filter(o => o.status !== 'paid' && o.status !== 'abandoned');
+
+            let testOrders = []
+
+            existingOrders.forEach(order => {
+              items = this.extractItemsFromCourses(order['order']);
+              let tableNo = order['table'];
+              testOrders.push(order);
+            });
+            // Vue.set()
+            return testOrders;
+            // console.log()
           })
           .catch(err => console.log(err));
+    },
+
+    extractItemsFromCourses(order) {
+
+      // Extract all items from each of the courses
+      let items = [];
+      for (let course of ['starters', 'mains', 'sides', 'desserts']) {
+        // console.log(order[course]);
+        items.push(order[course].items);
+      }
+      // console.log(items);
+      return items;
     }
   },
   created: function() {
-    // this.getOrders();
+    // this.testOrders;
+    this.testOrders = this.getOrders();
+    console.log(this.testOrders);
     this.socket = io.connect();
     this.socket.on('newOrder', newOrder => {
       // Do something here with new orders
