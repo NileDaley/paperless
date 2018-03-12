@@ -159,6 +159,7 @@ var app = new Vue({
         ticket.updatedAt = orderState.updatedAt;
       }
       // Update order state. Show big notification on ticket if state is abandoned
+      //
     });
   }
 })
