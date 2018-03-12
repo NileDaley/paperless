@@ -74,15 +74,34 @@ var app = new Vue({
     },
 
     completeOrder() {
-      axios.post('/api/counter/complete-order', this.currentBill)
-        .then(function (response) {
-          console.log(response);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-      alert('Saving data for table no: ' + JSON.stringify(this.currentBill));
-      console.log(this.currentBill);
+      console.log(this.currentBill.orderNo);
+      payload = {
+        bill: {
+          totalPreTax: this.currentBill.totalPreTax,
+          vatAmount: this.currentBill.vatAmount,
+          totalPostTax: this.currentBill.totalPreTax,
+        }, 
+        status: 'paid'
+      }
+
+      console.log(payload);
+
+      // console.log(bill);
+      axios.patch(`/api/counter/${this.currentBill.orderNo}`, payload)
+          .then(response => {
+            console.log('updated');
+          })
+          .catch(err => console.log(err));
+      
+      // axios.post('/api/counter/complete-order', this.currentBill)
+      //   .then(function (response) {
+      //     console.log(response);
+      //   })
+      //   .catch(function (error) {
+      //     console.log(error);
+      //   });
+      // alert('Saving data for table no: ' + JSON.stringify(this.currentBill));
+      // console.log(this.currentBill);
     },
 
     // finish this
@@ -110,6 +129,18 @@ var app = new Vue({
         }
       }
       return items;
+    },
+
+    updateOrder(bill) {
+      axios.patch(`/${this.currentTable.order._id}`, bill)
+          .then(response => {
+
+            let updatedOrder = response['data'];
+            this.currentTable.order.status = updatedOrder.status;
+            this.socket.emit('orderStateChange', updatedOrder);
+
+          })
+          .catch(err => console.log(err));
     },
 
     selectedAndNotEmpty() {

@@ -33,4 +33,32 @@ router.post('/complete-order', (req, res) => {
 
 });
 
+router.patch('/:id', (req, res) => {
+
+  let { bill, status } = req.body;
+  // console.log(req.body);
+  console.log(status);
+  console.log(bill);
+
+  // Order.findByIdAndUpdate(req.params.id,
+  //     {
+  //       $set: {
+  //         table,
+  //         date: moment().format('YYYY-MM-DD HH:MM:SS'),
+  //         customers,
+  //         status,
+  //         order
+  //       }
+  //     }, {'new': true})
+  //     .then(response => {
+  //       res.statusCode = 200;
+  //       res.json(response);
+  //     })
+  //     .catch(err => {
+  //       res.statusCode = 500;
+  //       res.json(err);
+  //     });
+
+});
+
 module.exports = router;
