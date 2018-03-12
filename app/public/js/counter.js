@@ -33,6 +33,7 @@ var app = new Vue({
 
     showTableOrder(tableNo) {
       this.empty = false
+      this.currentBill.tableNo = tableNo;
       let currentTable = [];
       currentTable = this.existingOrders.filter(order => {
         return order['table'] === tableNo;
@@ -42,7 +43,6 @@ var app = new Vue({
         this.selected = true;
         this.empty = true;
       } else {
-        this.currentBill.tableNo = tableNo;
         this.currentBill.orderNo = currentTable[0]._id;
         const extractedItems = this.extractItemsFromCourses(currentTable[0].order);
         this.currentBill.order = extractedItems;
@@ -50,9 +50,6 @@ var app = new Vue({
         this.calculateVAT();
         this.calculateTotal();
         this.selected = true;
-        console.log(this.currentBill.totalPreTax);
-        console.log(this.currentBill.vatAmount);
-        console.log(this.currentBill.totalPostTax);
       }
     },
 
@@ -99,7 +96,6 @@ var app = new Vue({
     },
 
     extractItemsFromCourses(order) {
-
       // Extract all items from each of the courses
       let items = [];
       for (let course of ['starters', 'mains', 'sides', 'desserts']) {
@@ -124,6 +120,15 @@ var app = new Vue({
       }
 
       return bool;
+    },
+
+    resetCurrentBill() {
+      this.currentBill.orderNo = '';
+      this.currentBill.tableNo = '';
+      this.currentBill.totalPreTax = 0;
+      this.currentBill.vatAmount = 0;
+      this.currentBill.totalPostTax = 0;
+      this.currentBill.order = [];
     }
   },
 
@@ -132,6 +137,29 @@ var app = new Vue({
     this.socket = io.connect();
     this.socket.on('newOrder', newOrder => {
       // Do something here with new orders
+      this.existingOrders.push(newOrder);
+      console.log(newOrder);
+      console.log(this.currentBill.tableNo);
+      if(this.currentBill.tableNo === newOrder.table) {
+        this.showTableOrder(newOrder.table);
+      }
+    });
+
+    this.socket.on('orderStateChange', order => {
+      const orderToUpdate = this.existingOrders.find(t => t.table === order.table);
+
+      if (order.status === 'abandoned') {
+        console.log('abandonded');
+        this.existingOrders.splice( this.existingOrders.indexOf(orderToUpdate), 1 );
+        this.showTableOrder(order.table);
+      } else {
+        console.log(orderToUpdate);
+        orderToUpdate.order = order.order;
+        console.log(order.order);
+        this.showTableOrder(order.table);
+
+      }
+
     });
   }
 });
