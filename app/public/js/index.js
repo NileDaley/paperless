@@ -178,7 +178,7 @@ var app = new Vue({
         const course = this[`${foodItem.category}s`];
         if (course.items.length > 0) {
 
-          const courseItem = course.items.find(orderItem => orderItem.item === foodItem);
+          const courseItem = course.items.find(orderItem => orderItem.item._id === foodItem._id);
           if (courseItem === undefined) {
             course.items.push(new OrderItem({
               _id: null,
