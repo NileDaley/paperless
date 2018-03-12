@@ -39,8 +39,9 @@
             <div id="selectTable">
 
                 <select-table v-if="!selected"></select-table>
+                <empty-table v-if="empty"></empty-table>
 
-                <div v-if="selected" class="content box">
+                <div v-if="selectedAndNotEmpty()" class="content box">
 
                     <table class="table is-bordered">
                         <thead>
@@ -52,8 +53,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in tables[this.currentBill.tableNo-1].order">
-                                <td>{{ item.item }}</td>
+                            <tr v-for="item in this.currentBill.order">
+                                <td>{{ item.name }}</td>
                                 <td>{{ item.price | currency('£') }}</td>
                                 <td>{{ item.quantity }}</td>
                                 <td>{{ item.price * item.quantity | currency('£') }}</td>
@@ -66,8 +67,7 @@
                     <div class="columns">
 
                         <div class="column">
-                            <h4 class="has-text-weight-bold">Table No: {{ tables[this.currentBill.tableNo - 1].tableNo }} - Order No: {{ tables[this.currentBill.tableNo
-                                - 1].orderNo }}</h4>
+                            <h4 class="has-text-weight-bold">Table No: {{ this.currentBill.tableNo }} - Order No: {{ this.currentBill.orderNo }}</h4>
                         </div>
 
                         <div class="column">
@@ -75,15 +75,15 @@
                                 <tbody>
                                     <tr>
                                         <th>TOTAL:</th>
-                                        <th>{{ totalPreTax() | currency('£') }}</th>
+                                        <th>{{ this.currentBill.totalPreTax | currency('£') }}</th>
                                     </tr>
                                     <tr>
                                         <th>VAT @ 20%:</th>
-                                        <th>{{ calculateVAT() | currency('£') }}</th>
+                                        <th>{{ this.currentBill.vatAmount | currency('£') }}</th>
                                     </tr>
                                     <tr>
                                         <th>TOTAL + VAT:</th>
-                                        <th>{{ calculateTotal() | currency('£') }}
+                                        <th>{{ this.currentBill.totalPostTax | currency('£') }}
                                         </th>
                                     </tr>
                                 </tbody>
