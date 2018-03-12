@@ -24,7 +24,6 @@ const app = new Vue({
             category: 'Select Dropdown'
         },
         password: '',
-        testPassword: 'Admin',
         loggedIn: false
     },
     methods: {
@@ -82,7 +81,7 @@ const app = new Vue({
             // e.preventDefault();
         },
         validName: function (name) {
-            var re = /^[A-Za-z0-9 _]*[A-Za-z0-9][A-Za-z0-9 _]*$/;
+            var re = /^[A-z0-9& _*-]+$/;
             return re.test(name);
         },
         validPrice: function (price) {
@@ -158,15 +157,23 @@ const app = new Vue({
         },
 
         checkPassword() {
-            // this.checkLogIn();
-            this.loginError = []
-            if( !this.password ) {
-                this.loginError.push("Please enter a password")
-            } else if (this.password === this.testPassword) {
-                this.loggedIn = true;
-            } else {
-                this.loginError.push("Incorrect Password!");
-            }
+            axios.post('/api/admin/login', { data: this.password })
+                .then(foundUser => {
+                    this.loginError = []
+                    if (!foundUser) {
+                        this.loginError.push("User Could Not Be Found");
+                    } else {
+
+                        if (this.password === foundUser['data'][0]['password']) {
+                            this.loggedIn = true;
+                        } else {
+                            this.loginError.push("Incorrect Password!");
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                });
         }
 
     },
