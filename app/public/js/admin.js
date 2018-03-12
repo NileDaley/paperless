@@ -11,6 +11,7 @@ class FoodItem {
 const app = new Vue({
     el: '#app',
     data: {
+        loginError: [],
         messages: [],
         errors: [],
         errorsEdit: [],
@@ -21,7 +22,9 @@ const app = new Vue({
             name: '',
             price: '',
             category: 'Select Dropdown'
-        }
+        },
+        password: '',
+        loggedIn: false
     },
     methods: {
         getFoodItems() {
@@ -78,7 +81,7 @@ const app = new Vue({
             // e.preventDefault();
         },
         validName: function (name) {
-            var re = /^[A-Za-z0-9 _]*[A-Za-z0-9][A-Za-z0-9 _]*$/;
+            var re = /^[A-z0-9& _*-]+$/;
             return re.test(name);
         },
         validPrice: function (price) {
@@ -117,7 +120,7 @@ const app = new Vue({
                 if (!this.errorsEdit.length) {
                     axios.put('/api/menu', { data: item })
                         .then(response => {
-                            let removeIndex = this.messages.indexOf(item.name + ' has been updated')     
+                            let removeIndex = this.messages.indexOf(item.name + ' has been updated')
                             this.messages.push(item.name + ' has been updated')
                             setTimeout(() => this.clearMessage(removeIndex), 10000);
                             console.log(response);
@@ -151,10 +154,31 @@ const app = new Vue({
 
         clearMessage(item) {
             this.messages.splice(item, 1);
-        }       
+        },
+
+        checkPassword() {
+            axios.post('/api/admin/login', { data: this.password })
+                .then(foundUser => {
+                    this.loginError = []
+                    if (!foundUser) {
+                        this.loginError.push("User Could Not Be Found");
+                    } else {
+
+                        if (this.password === foundUser['data'][0]['password']) {
+                            this.loggedIn = true;
+                        } else {
+                            this.loginError.push("Incorrect Password!");
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                });
+        }
 
     },
     created: function () {
         this.getFoodItems();
+        // this.loggedIn = false;
     }
 })
