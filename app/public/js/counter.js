@@ -19,7 +19,8 @@ var app = new Vue({
       totalPreTax: 0,
       vatAmount: 0,
       totalPostTax: 0,
-      order: []
+      order: [],
+      status: ''
     },
     existingOrders: [],
     testOrders: [],
@@ -44,8 +45,10 @@ var app = new Vue({
         this.empty = true;
       } else {
         this.currentBill.orderNo = currentTable[0]._id;
+        console.log(currentTable[0]);
         const extractedItems = this.extractItemsFromCourses(currentTable[0].order);
         this.currentBill.order = extractedItems;
+        this.currentBill.status = currentTable[0].status;
         this.calculatePreTax();
         this.calculateVAT();
         this.calculateTotal();
@@ -80,7 +83,7 @@ var app = new Vue({
           totalPreTax: this.currentBill.totalPreTax,
           vatAmount: this.currentBill.vatAmount,
           totalPostTax: this.currentBill.totalPreTax,
-        }, 
+        },
         status: 'paid'
       }
 
@@ -88,11 +91,16 @@ var app = new Vue({
 
       // console.log(bill);
       axios.patch(`/api/counter/${this.currentBill.orderNo}`, payload)
-          .then(response => {
-            console.log('updated');
-          })
-          .catch(err => console.log(err));
-      
+        .then(response => {
+          let updatedOrder = response['data'];
+          // console.log(updatedOrder);
+          // this.currentBill.order.status = updatedOrder.status;
+          this.socket.emit('orderStateChange', updatedOrder);
+          // this.socket.emit('orderStateChange', updatedOrder);
+          // this.resetCurrentBill();
+        })
+        .catch(err => console.log(err));
+
       // axios.post('/api/counter/complete-order', this.currentBill)
       //   .then(function (response) {
       //     console.log(response);
@@ -131,17 +139,17 @@ var app = new Vue({
       return items;
     },
 
-    updateOrder(bill) {
-      axios.patch(`/${this.currentTable.order._id}`, bill)
-          .then(response => {
+    // updateOrder(bill) {
+    //   axios.patch(`/${this.currentTable.order._id}`, bill)
+    //     .then(response => {
 
-            let updatedOrder = response['data'];
-            this.currentTable.order.status = updatedOrder.status;
-            this.socket.emit('orderStateChange', updatedOrder);
+    //       let updatedOrder = response['data'];
+    //       this.currentTable.order.status = updatedOrder.status;
+    //       this.socket.emit('orderStateChange', updatedOrder);
 
-          })
-          .catch(err => console.log(err));
-    },
+    //     })
+    //     .catch(err => console.log(err));
+    // },
 
     selectedAndNotEmpty() {
       let bool = false;
@@ -160,6 +168,13 @@ var app = new Vue({
       this.currentBill.vatAmount = 0;
       this.currentBill.totalPostTax = 0;
       this.currentBill.order = [];
+      this.currentBill.status = '';
+    },
+  },
+  
+  computed: {
+    capitalizeFirstLetter: function () {
+      return this.currentBill.status.charAt(0).toUpperCase() + this.currentBill.status.slice(1);
     }
   },
 
@@ -171,7 +186,7 @@ var app = new Vue({
       this.existingOrders.push(newOrder);
       console.log(newOrder);
       console.log(this.currentBill.tableNo);
-      if(this.currentBill.tableNo === newOrder.table) {
+      if (this.currentBill.tableNo === newOrder.table) {
         this.showTableOrder(newOrder.table);
       }
     });
@@ -179,16 +194,15 @@ var app = new Vue({
     this.socket.on('orderStateChange', order => {
       const orderToUpdate = this.existingOrders.find(t => t.table === order.table);
 
-      if (order.status === 'abandoned') {
-        console.log('abandonded');
-        this.existingOrders.splice( this.existingOrders.indexOf(orderToUpdate), 1 );
+      if (order.status === 'abandoned' || order.status === 'paid') {
+        console.log('abandonded/paid');
+        this.existingOrders.splice(this.existingOrders.indexOf(orderToUpdate), 1);
         this.showTableOrder(order.table);
       } else {
-        console.log(orderToUpdate);
         orderToUpdate.order = order.order;
-        console.log(order.order);
+        // console.log(orderToUpdate.order);
+        // console.log(this.currentBill.order);
         this.showTableOrder(order.table);
-
       }
 
     });

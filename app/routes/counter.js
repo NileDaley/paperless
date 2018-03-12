@@ -40,24 +40,21 @@ router.patch('/:id', (req, res) => {
   console.log(status);
   console.log(bill);
 
-  // Order.findByIdAndUpdate(req.params.id,
-  //     {
-  //       $set: {
-  //         table,
-  //         date: moment().format('YYYY-MM-DD HH:MM:SS'),
-  //         customers,
-  //         status,
-  //         order
-  //       }
-  //     }, {'new': true})
-  //     .then(response => {
-  //       res.statusCode = 200;
-  //       res.json(response);
-  //     })
-  //     .catch(err => {
-  //       res.statusCode = 500;
-  //       res.json(err);
-  //     });
+  Order.findByIdAndUpdate(req.params.id,
+      {
+        $set: {
+          bill,
+          status
+        }
+      }, {'new': true})
+      .then(response => {
+        res.statusCode = 200;
+        res.json(response);
+      })
+      .catch(err => {
+        res.statusCode = 500;
+        res.json(err);
+      });
 
 });
 

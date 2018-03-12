@@ -67,7 +67,9 @@
                     <div class="columns">
 
                         <div class="column">
-                            <h4 class="has-text-weight-bold">Table No: {{ this.currentBill.tableNo }} - Order No: {{ this.currentBill.orderNo }}</h4>
+                            <h4>Table No: {{ this.currentBill.tableNo }} </h4>
+                            <h4>Order Status: {{ capitalizeFirstLetter }}</h4>
+                            <h4>Order No: {{ this.currentBill.orderNo }}</h4>
                         </div>
 
                         <div class="column">
@@ -88,6 +90,16 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            <!-- <div class="columns buttons has-addons">
+                                <div class="column">
+                                    <p>Discount</p>
+                                </div>
+                                <div class="column">
+                                    <a class="button">25</a>
+                                    <a class="button">50</a>
+                                    <a class="button">100</a>
+                                </div>
+                            </div> -->
                         </div>
 
                     </div>
