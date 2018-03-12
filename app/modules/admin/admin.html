@@ -55,7 +55,7 @@
                             <div class="columns">
                                 <div class="column"></div>
                                 <div class="column is-one-thirds">
-                                    <div v-if="messages.length">
+                                    <div v-if="messages.length > 0bu">
                                         <div class="notification is-success">
                                             <p v-for="item in messages">{{ item }}</p>
                                             <a @click="clearMessage(item)" class="delete"></a>
