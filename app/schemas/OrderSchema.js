@@ -8,6 +8,7 @@ const OrderSchema = new Schema({
   table: Number,
   order: CourseSchema,
   date: String,
+  updatedAt: String,
   customers: Number,
   status: String,
   bill: BillSchema,
