@@ -11,7 +11,7 @@ class Ticket {
       hours: null,
       minutes: null,
       seconds: null
-    }
+    };
   }
 }
 
@@ -59,17 +59,20 @@ var app = new Vue({
   methods: {
     getOrders() {
       return new Promise((resolve, reject) => {
-        axios.get('/api/counter/all-orders')
+        axios
+          .get('/api/counter/all-orders')
           .then(response => {
             data = response['data']
               .filter(item => {
-                return !(['paid', 'abandoned'].includes(item.status.toLowerCase()))
+                return !['served', 'paid', 'abandoned'].includes(
+                  item.status.toLowerCase()
+                );
               })
               .sort((a, b) => {
                 /* Sort oldest to newest */
                 return moment(a.date).isAfter(moment(b.date));
               })
-              .map(ticket => new Ticket(ticket))
+              .map(ticket => new Ticket(ticket));
             this.tickets = data;
             resolve();
           })
@@ -92,7 +95,6 @@ var app = new Vue({
       this.checkCourseStatus(tableNumber, course, dish);
     },
     checkCourseStatus(tableNumber, courseName, dish) {
-
       const course = this.getCourse(courseName, tableNumber);
       const ticket = this.tickets.find(t => t.table === tableNumber);
 
@@ -106,7 +108,6 @@ var app = new Vue({
       }
 
       this.updateTicket(ticket);
-
     },
     updateOrderTimes() {
       setInterval(() => {
@@ -117,13 +118,15 @@ var app = new Vue({
             hours: (Math.floor(timeSince.days() * 24) + timeSince.hours())
               .toString()
               .padStart(2, '0'),
-            minutes: (timeSince.minutes())
+            minutes: timeSince
+              .minutes()
               .toString()
               .padStart(2, '0'),
-            seconds: (timeSince.seconds())
+            seconds: timeSince
+              .seconds()
               .toString()
               .padStart(2, '0')
-          }
+          };
         });
       }, 1000);
     },
@@ -135,14 +138,27 @@ var app = new Vue({
       this.updateTicket(ticket);
     },
     updateTicket(ticket) {
-      axios.patch(`/${ticket._id}`, ticket)
+      axios
+        .patch(`/${ticket._id}`, ticket)
         .then(response => {
           this.socket.emit('orderStateChange', ticket);
         })
         .catch(err => console.error(err));
+    },
+    allCoursesServed(order) {
+      let remainingCourses = 0;
+      ['starters', 'mains', 'sides', 'desserts'].forEach(course => {
+        if (
+          order[course].items.length > 0 &&
+          order[course].status !== 'served'
+        ) {
+          remainingCourses++;
+        }
+      });
+      return remainingCourses === 0;
     }
   },
-  created: function () {
+  created: function() {
     this.getOrders().then(() => {
       this.updateOrderTimes();
     });
@@ -150,15 +166,24 @@ var app = new Vue({
     this.socket.on('newOrder', newOrder => {
       this.tickets.push(new Ticket(newOrder));
     });
-    this.socket.on('orderStateChange', orderState => { 
+    this.socket.on('orderStateChange', orderState => {
       const ticket = this.tickets.find(t => t._id === orderState._id);
-      ticket.date = orderState.date;
-      ticket.order = new Order(orderState.order);
-      ticket.status = orderState.status;
-      if (orderState.updatedAt) {
-        ticket.updatedAt = orderState.updatedAt;
+      if (
+        orderState.status === 'served' ||
+        (orderState.status === 'abandoned' && allCoursesServed(ticket.order))
+      ) {
+        this.tickets.splice(this.tickets.indexOf(ticket), 1);
+      } else {
+        if (!ticket) {
+          this.tickets.push(new Ticket(orderState));
+        } else {
+          ticket.order = new Order(orderState.order);
+          ticket.status = orderState.status;
+          if (orderState.updatedAt) {
+            ticket.updatedAt = orderState.updatedAt;
+          }
+        }
       }
-      // Update order state. Show big notification on ticket if state is abandoned
     });
   }
-})
+});

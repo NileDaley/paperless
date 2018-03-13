@@ -6,7 +6,7 @@ block content
       .container
         .columns
           .column.is-8.is-offset-2
-            h2.subtitle Tables
+            h2.title Front of House
             #tables.columns.is-mobile.is-multiline.is-centered
               .column.is-3.is-2-widescreen(v-for="t in tables")
                 .button.is-fullwidth(:class="getTableClass(t)" @click="selectTable(t)")
@@ -18,7 +18,7 @@ block content
                 nav.panel
                   p.panel-heading.has-text-centered
                     | Table {{currentTable.number}}
-                  div(v-if="currentTable.ticket.status === 'pending'")
+                  div(v-if="currentTable.ticket.status === 'pending' || currentTable.ticket.status === 'free'")
                     // Customer Counter
                     .panel-block
                       .field.has-addons(style="width: 100%;")
@@ -66,7 +66,7 @@ block content
                     div(v-if="order[course].items.length > 0")
                       p.label.is-capitalized {{course}}
                       p Status: 
-                        span.has-text-weight-semibold(v-bind:class="{'has-text-success': order[course].status === 'ready', 'has-text-info': order[course].status === 'pending', 'has-text-warning': order[course].status === 'cooking'}") {{order[course].status.toUpperCase()}}
+                        span.has-text-weight-semibold(v-bind:class="{'has-text-success': order[course].status === 'served','has-text-danger': order[course].status === 'ready', 'has-text-info': order[course].status === 'pending', 'has-text-warning': order[course].status === 'cooking'}") {{order[course].status.toUpperCase()}}
                       p.columns.is-marginless.is-mobile(v-for="orderitem in order[course].items")
                         span.column {{orderitem.item.name}}
                         span.column.has-text-right
@@ -77,6 +77,9 @@ block content
                           a.link(@click="addItemToOrder(orderitem.item)" v-if="pendingOrder")
                             span.icon    
                               i.fas.fa-plus
+                      .columns.is-mobile
+                        .column.is-6.is-offset-3
+                          a.button.is-success.is-fullwidth(@click="serveCourse(course)" v-if="order[course].status === 'ready'") Serve
                 
                   br
                   #orderControls(v-if="!emptyOrder")
