@@ -1,3 +1,21 @@
+
+class Item {
+  constructor(name, quantity, price) {
+    this.name = name;
+    this.quantity = quantity;
+    this.price = price;
+  }
+};
+
+class Table {
+  constructor(_id, occupied = false, status, customers = 0) {
+    this._id = _id;
+    this.status = status
+    this.occupied = occupied;
+    this.customers = customers;
+  }
+};
+
 var SelectTable = {
   template: '<div><h2>Select a table to see the order</h2></div>'
 };
@@ -16,15 +34,18 @@ var app = new Vue({
     currentBill: {
       orderNo: 0,
       tableNo: 0,
-      totalPreTax: 0,
-      vatAmount: 0,
       totalPostTax: 0,
+      vatAmount: 0,
+      totalPreTax: 0,
       order: [],
       status: ''
     },
     existingOrders: [],
     testOrders: [],
-    tables: []
+    tables: [],
+    discount,
+    adminPass,
+    errors: []
   },
   components: {
     'select-table': SelectTable,
@@ -49,31 +70,31 @@ var app = new Vue({
         const extractedItems = this.extractItemsFromCourses(currentTable[0].order);
         this.currentBill.order = extractedItems;
         this.currentBill.status = currentTable[0].status;
-        this.calculatePreTax();
+        this.calculatePostTax();
         this.calculateVAT();
-        this.calculateTotal();
+        this.calculatePreTax();
         this.selected = true;
       }
     },
 
-    calculatePreTax() {
+    calculatePostTax() {
       let total = 0;
       /* TODO: Update forEach statement to reflect changes of order structure. See /api/all-orders for new structure */
       this.currentBill.order.forEach(element => {
         const itemTotal = element.quantity * element.price;
         total += itemTotal;
       });
-      this.currentBill.totalPreTax = total;
+      this.currentBill.totalPostTax = total;
     },
 
     calculateVAT() {
-      const vat = this.currentBill.totalPreTax * 0.2;
+      const vat = this.currentBill.totalPostTax * 0.2;
       this.currentBill.vatAmount = vat;
     },
 
-    calculateTotal() {
-      const total = this.currentBill.totalPreTax + this.currentBill.vatAmount;
-      this.currentBill.totalPostTax = total;
+    calculatePreTax() {
+      const total = this.currentBill.totalPostTax - this.currentBill.vatAmount;
+      this.currentBill.totalPreTax = total;
     },
 
     completeOrder() {
@@ -118,6 +139,15 @@ var app = new Vue({
         .then(response => {
           let allOrders = response['data'];
           this.existingOrders = allOrders.filter(o => o.status !== 'paid' && o.status !== 'abandoned');
+
+          this.existingOrders.forEach(order => {
+
+            let orderTable = this.tables.find(t => t._id === order.table);
+            orderTable.occupied = true;
+            orderTable.customers = order.customers;
+            orderTable.status = order.status;
+            // orderTable.order._id = order._id;
+          });
         })
         .catch(err => console.log(err));
     },
@@ -139,18 +169,6 @@ var app = new Vue({
       return items;
     },
 
-    // updateOrder(bill) {
-    //   axios.patch(`/${this.currentTable.order._id}`, bill)
-    //     .then(response => {
-
-    //       let updatedOrder = response['data'];
-    //       this.currentTable.order.status = updatedOrder.status;
-    //       this.socket.emit('orderStateChange', updatedOrder);
-
-    //     })
-    //     .catch(err => console.log(err));
-    // },
-
     selectedAndNotEmpty() {
       let bool = false;
 
@@ -170,6 +188,29 @@ var app = new Vue({
       this.currentBill.order = [];
       this.currentBill.status = '';
     },
+
+    createTables() {
+      const TABLES = 6;
+      for (let i = 1; i <= TABLES; i++) {
+        this.tables.push(new Table(i));
+      }
+    },
+
+    // applyDiscount() {
+    //   this.errors = [];
+
+    //   if(!this.adminPass) {
+    //     this.errors.push('Please enter a admin password');
+    //   }
+
+    //   if(!this.discount) {
+    //     this.errors.push('Please enter a discount %');
+    //   } 
+
+    //   if(this.adminPass && this.discount) {
+        
+    //   }
+    }
   },
   
   computed: {
@@ -180,12 +221,19 @@ var app = new Vue({
 
   created: function () {
     this.getOrders();
+    this.currentBill.tableNo = 0;
+    this.createTables();
+
     this.socket = io.connect();
     this.socket.on('newOrder', newOrder => {
       // Do something here with new orders
+      const table = this.tables.find(t => t._id === newOrder.table);
+
+      table.status = newOrder.status;
+      table.customers = newOrder.customers;
+      table.occupied = true;
+
       this.existingOrders.push(newOrder);
-      console.log(newOrder);
-      console.log(this.currentBill.tableNo);
       if (this.currentBill.tableNo === newOrder.table) {
         this.showTableOrder(newOrder.table);
       }
@@ -193,15 +241,18 @@ var app = new Vue({
 
     this.socket.on('orderStateChange', order => {
       const orderToUpdate = this.existingOrders.find(t => t.table === order.table);
+      const table = this.tables.find(t => t._id === order.table);
 
       if (order.status === 'abandoned' || order.status === 'paid') {
         console.log('abandonded/paid');
+        table.customers = 0;
+        table.occupied = false;
         this.existingOrders.splice(this.existingOrders.indexOf(orderToUpdate), 1);
         this.showTableOrder(order.table);
       } else {
         orderToUpdate.order = order.order;
-        // console.log(orderToUpdate.order);
-        // console.log(this.currentBill.order);
+        table.status = order.status;
+        table.customers = order.customers;
         this.showTableOrder(order.table);
       }
 
@@ -209,10 +260,3 @@ var app = new Vue({
   }
 });
 
-class Item {
-  constructor(name, quantity, price) {
-    this.name = name;
-    this.quantity = quantity;
-    this.price = price;
-  }
-}
