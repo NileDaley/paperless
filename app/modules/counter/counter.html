@@ -14,7 +14,7 @@
     <!-- ========= -->
     <div class="section">
         <div class="container" id="app">
-            <h1 class="title">Counter View</h1>
+            <h1 class="title">Counter</h1>
             <div class="columns is-multiline is-centered" id="tables">
                 <div class="column is-3 is-2-widescreen" v-for="t in tables">
                     <button id="btn" class="button is-large is-fullwidth" @click="showTableOrder(t._id)" v-bind:class="{ 'is-active': currentBill.tableNo === t._id,  'is-info': t.occupied, 'is-warning': t.status === 'cooking', 'is-danger': t.status === 'ready', 'is-success': t.status === 'served'}">{{t._id}}</button>
