@@ -28,7 +28,7 @@ block content
                               span.is-pulled-right
                                 | x{{dish.quantity}}
                         br
-                  div(v-if="t.status.toLowerCase() === 'abandoned'")
+                  div(v-if="t.status.toLowerCase() === 'abandoned' && !allCoursesServed(t.order)")
                     .notification.is-danger.has-text-centered
                       p.subtitle Order cancelled
                       a.button.is-dark(@click="removeTicket(t)") Okay

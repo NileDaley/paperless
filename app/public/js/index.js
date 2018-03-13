@@ -7,12 +7,7 @@ class Table {
 }
 
 class Ticket {
-  constructor(
-    _id = null,
-    status = 'pending',
-    date = null,
-    order = new Order()
-  ) {
+  constructor(_id = null, status = 'free', date = null, order = new Order()) {
     this._id = _id;
     this.status = status;
     this.date = date;
@@ -198,6 +193,9 @@ var app = new Vue({
       }
     },
     addItemToOrder(foodItem) {
+      if (this.currentTable.ticket.status === 'free') {
+        this.currentTable.ticket.status = 'pending';
+      }
       if (this.pendingOrder) {
         const course = this[`${foodItem.category}s`];
         course.status = 'pending';
@@ -296,6 +294,7 @@ var app = new Vue({
 
       let payload = this.getOrderPayload();
       payload.status = this.ticket.status;
+      console.log(payload);
       this.updateOrder(payload);
     },
     editOrder() {
@@ -316,6 +315,7 @@ var app = new Vue({
       return anyReady;
     },
     getTableClass(table) {
+      // Highlight tables which have courses waiting to be served
       if (this.anyCourseReady(table)) {
         return 'is-danger';
       } else {
@@ -336,15 +336,16 @@ var app = new Vue({
       }
     },
     allCoursesServed(order) {
+      let remainingCourses = 0;
       ['starters', 'mains', 'sides', 'desserts'].forEach(course => {
         if (
           order[course].items.length > 0 &&
           order[course].status !== 'served'
         ) {
-          return false;
+          remainingCourses++;
         }
       });
-      return true;
+      return remainingCourses === 0;
     }
   },
   created: function() {
