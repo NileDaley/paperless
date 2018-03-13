@@ -81,25 +81,33 @@
                         </div>
 
                     </div>
-
+                    
                     <nav class="level">
                         <!-- Left side -->
                         <div class="level-left">
-                            <div class="field">
-                                <div class="control">
-                                    <input class="input" type="text" v-model="discount" placeholder="% discount">
+                            <div class="columns">
+                                <div class="column"></div>
+                                <div class="column is-narrow">
+                                    <form>
+                                        <div class="field">
+                                            <div class="control">
+                                                <input class="input" type="text" v-model="discount" placeholder="% discount">
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="control">
+                                                <input class="input" type="password" v-model="adminPass" placeholder="Password">
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="control">
+                                                <a class="button is-warning is-fullwidth" @click="applyDiscount()">Discount</a>
+                                            </div>
+                                        </div>
+                                        <p v-for="error in errors">{{error}}</p>
+                                    </form>
                                 </div>
                             </div>
-                            <div class="field">
-                                <div class="control">
-                                    <input class="input" type="text" v-model="adminPass" placeholder="Password">
-                                </div>
-                            </div>
-                            <!-- <div class="field">
-                                <div class="control">
-                                    <a class="button is-warning" @click="applyDiscount()">Discount</a>
-                                </div>
-                            </div> -->
                         </div>
 
                         <!-- Right side -->

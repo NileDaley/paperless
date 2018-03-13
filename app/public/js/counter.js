@@ -43,14 +43,16 @@ var app = new Vue({
     existingOrders: [],
     testOrders: [],
     tables: [],
-    discount,
-    adminPass,
+    discount: '',
+    adminPass: '',
     errors: []
   },
+
   components: {
     'select-table': SelectTable,
     'empty-table': EmptyTable
   },
+
   methods: {
 
     showTableOrder(tableNo) {
@@ -98,7 +100,6 @@ var app = new Vue({
     },
 
     completeOrder() {
-      console.log(this.currentBill.orderNo);
       payload = {
         bill: {
           totalPreTax: this.currentBill.totalPreTax,
@@ -196,23 +197,40 @@ var app = new Vue({
       }
     },
 
-    // applyDiscount() {
-    //   this.errors = [];
+    applyDiscount() {
+      this.errors = [];
 
-    //   if(!this.adminPass) {
-    //     this.errors.push('Please enter a admin password');
-    //   }
+      if (!this.adminPass) {
+        this.errors.push('Please enter an admin password');
+      }
 
-    //   if(!this.discount) {
-    //     this.errors.push('Please enter a discount %');
-    //   } 
+      if (!this.discount || this.discount > 100 || this.discount < 1) {
+        this.errors.push('Please enter a valid discount %');
+      }
 
-    //   if(this.adminPass && this.discount) {
-        
-    //   }
+      if (this.adminPass && this.discount) {
+        axios.post('/api/admin/login', { data: this.adminPass })
+          .then(foundUser => {
+            if (!foundUser) {
+              this.errors.push("User Could Not Be Found");
+            } else {
+
+              if (this.adminPass === foundUser['data'][0]['password']) {
+                this.currentBill.totalPostTax = this.currentBill.totalPostTax - (this.currentBill.totalPostTax * (this.discount / 100));
+                this.adminPass = '';
+                this.discount = null;
+              } else {
+                this.errors.push("Incorrect Password!");
+              }
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          });
+      }
     }
   },
-  
+
   computed: {
     capitalizeFirstLetter: function () {
       return this.currentBill.status.charAt(0).toUpperCase() + this.currentBill.status.slice(1);
