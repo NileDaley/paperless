@@ -199,32 +199,54 @@
             <div class="columns">
                 <div class="column"></div>
                 <div class="column is-narrow">
-                    <a @click="showOrderHistory()" class="button is-link is-fullwidth">
+                    <a @click="orderHistoryToggle()" class="button is-link is-fullwidth">
                         <span class="icon is-small">
                             <i class="fas fa-history"></i>
                         </span>
-                        <span>Show Order History</span>
-                    </a>                    
+                        <span>{{this.showHideOrder}} Order History</span>
+                    </a>
                 </div>
                 <div class="column"></div>
             </div>
 
-            <div class="columns">
-                    <div class="column"></div>
-                    <div class="column is-narrow">
-                          <div class="columns">
-                              <div class="column">
-                                  <p>Order_no:</p>
-                                  <p>Table_no:</p>
-                                  <p>Date:</p>
-                              </div>
-                              <div class="column">
-
-                              </div>
-                          </div>             
+            <div class="columns" v-if="orderHistory === true">
+                <div class="column"></div>
+                <div class="column is-narrow">
+                    <div class="columns box box-margin" v-for="order in this.paidOrders">
+                        <div class="column">
+                            <p>Order:{{order._id}}</p>
+                            <p>Table:{{order.table}}</p>
+                            <p>Date:{{order.date}}</p>
+                            <p>Total (PreTax): {{order.bill.totalPreTax | currency('£')}}</p>
+                            <p>VAT: {{order.bill.vatAmount | currency('£')}}</p>
+                            <p>Total (PostTax): {{order.bill.totalPostTax | currency('£')}}</p>
+                        </div>
+                        <div class="column">
+                            <table class="table is-narrow">
+                                <thead>
+                                    <td>Name</td>
+                                    <td>Qty</td>
+                                    <td>Price</td>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in order.order">
+                                        <td>{{item.name}}</td>
+                                        <td>{{item.quantity}}</td>
+                                        <td>{{item.price * item.quantity | currency('£')}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>                        
                     </div>
-                    <div class="column"></div>
-                </div>
+                    <a @click="orderHistoryToggle()" class="button is-link is-fullwidth">
+                            <span class="icon is-small">
+                                <i class="fas fa-history"></i>
+                            </span>
+                            <span>{{this.showHideOrder}} Order History</span>
+                        </a>
+                </div>                
+                <div class="column"></div>
+            </div>
         </div>
         <!-- ========= -->
         <!-- Libraries -->
@@ -239,6 +261,7 @@
 
 
         <script src="./js/counter.js"></script>
+        <link rel="stylesheet" type="text/css" href="/stylesheets/counter.css">
 
 </body>
 

@@ -29,7 +29,9 @@ var app = new Vue({
     selected: false,
     empty: false,
     showReceipt: false,
+    orderHistory: false,
     showHide: 'Show',
+    showHideOrder: 'Show',
     selectedTable: null,
     socket: null,
     currentBill: {
@@ -226,25 +228,28 @@ var app = new Vue({
       this.showReceipt = !this.showReceipt;
     },
 
+    orderHistoryToggle() {
+      if ( this.showHideOrder === 'Show' ) {
+        this.showHideOrder = 'Hide'
+        this.showOrderHistory();
+      } else {
+        this.showHideOrder = 'Show'
+      }
+      this.orderHistory = !this.orderHistory;
+    },
+
     showOrderHistory() {
       axios.get('/api/counter/all-orders')
         .then( response => {
           let allOrders = response['data'];
+
           this.paidOrders = allOrders.filter(o => o.status === 'paid');
-          console.log(this.paidOrders);
+          
           this.paidOrders.forEach( order => {
-            // order.order = this.extractItemsFromCourses(order.order);
-            order.order = [];
-            // console.log(order.order);
+            let items = this.extractItemsFromCourses(order.order);
+            order.order = items;
           });
           console.log(this.paidOrders);
-          // this.existingOrders.forEach(order => {
-
-          //   let orderTable = this.tables.find(t => t._id === order.table);
-          //   orderTable.occupied = true;
-          //   orderTable.customers = order.customers;
-          //   orderTable.status = order.status;
-          // });
         })
         .catch(err => console.log(err));
     }
