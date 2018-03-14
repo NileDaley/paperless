@@ -1,4 +1,3 @@
-
 class Item {
   constructor(name, quantity, price) {
     this.name = name;
@@ -29,6 +28,8 @@ var app = new Vue({
   data: {
     selected: false,
     empty: false,
+    showReceipt: false,
+    showHide: 'Show',
     selectedTable: null,
     socket: null,
     currentBill: {
@@ -41,6 +42,7 @@ var app = new Vue({
       status: ''
     },
     existingOrders: [],
+    paidOrders: [],
     tables: [],
     discount: '',
     adminPass: '',
@@ -55,6 +57,7 @@ var app = new Vue({
   methods: {
 
     showTableOrder(tableNo) {
+      this.errors = [];
       this.empty = false
       this.currentBill.tableNo = tableNo;
 
@@ -87,6 +90,7 @@ var app = new Vue({
         total += itemTotal;
       });
       this.currentBill.totalPostTax = total;
+      console.log(moment().format('MMMM Do YYYY, h:mm:ss a'));
     },
 
     calculateVAT() {
@@ -104,7 +108,7 @@ var app = new Vue({
         bill: {
           totalPreTax: this.currentBill.totalPreTax,
           vatAmount: this.currentBill.vatAmount,
-          totalPostTax: this.currentBill.totalPreTax,
+          totalPostTax: this.currentBill.totalPostTax,
         },
         status: 'paid'
       }
@@ -207,6 +211,42 @@ var app = new Vue({
             console.log(err)
           });
       }
+    },
+
+    getCurrentTime(){
+      return moment().format('MMMM Do YYYY, h:mm:ss a');
+    },
+
+    receiptToggle() {
+      if ( this.showHide === 'Show' ) {
+        this.showHide = 'Hide'
+      } else {
+        this.showHide = 'Show'
+      }
+      this.showReceipt = !this.showReceipt;
+    },
+
+    showOrderHistory() {
+      axios.get('/api/counter/all-orders')
+        .then( response => {
+          let allOrders = response['data'];
+          this.paidOrders = allOrders.filter(o => o.status === 'paid');
+          console.log(this.paidOrders);
+          this.paidOrders.forEach( order => {
+            // order.order = this.extractItemsFromCourses(order.order);
+            order.order = [];
+            // console.log(order.order);
+          });
+          console.log(this.paidOrders);
+          // this.existingOrders.forEach(order => {
+
+          //   let orderTable = this.tables.find(t => t._id === order.table);
+          //   orderTable.occupied = true;
+          //   orderTable.customers = order.customers;
+          //   orderTable.status = order.status;
+          // });
+        })
+        .catch(err => console.log(err));
     }
   },
 
