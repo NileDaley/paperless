@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var api = require('./routes/api');
+var kitchen = require('./routes/kitchen');
 
 var app = express();
 
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/api', api);
+app.use('/kitchen', kitchen);
 app.get('/counter', (req, res) => {
   res.sendFile(__dirname + '/modules/counter/counter.html');
 });
