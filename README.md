@@ -6,7 +6,7 @@ An application to manage restraunt orders
 * View real time table and order details
 * Responsive design
 
-### Kitchen View
+### Waiter View
 * Add new orders
 * Edit orders
 * Orders separated into courses
