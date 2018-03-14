@@ -2,6 +2,34 @@
 
 An application to manage restraunt orders
 
+## Features
+* View real time table and order details
+* Responsive design
+
+### Kitchen View
+* Add new orders
+* Edit orders
+* Orders separated into courses
+* Filterable and searchable menu
+* Show notifications when a course is ready
+
+### Counter View
+* Display order pricing
+* Apply order discount with administrator password
+* View bill in print format
+* View all historical orders
+
+### Kitchen View
+* Be notified of new orders and order changes
+* Update status of ticket items
+* Displays customer wait time
+
+### Admin View
+* Login with administrator password
+* View all food item details
+* Edit food items
+* Add new food items
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine
