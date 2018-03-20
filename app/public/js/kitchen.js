@@ -168,9 +168,11 @@ var app = new Vue({
     });
     this.socket.on('orderStateChange', orderState => {
       const ticket = this.tickets.find(t => t._id === orderState._id);
+      console.log(orderState);
       if (
         orderState.status === 'served' ||
-        (orderState.status === 'abandoned' && allCoursesServed(ticket.order))
+        (orderState.status === 'abandoned' &&
+          this.allCoursesServed(ticket.order))
       ) {
         this.tickets.splice(this.tickets.indexOf(ticket), 1);
       } else {

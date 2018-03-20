@@ -4,23 +4,24 @@ class Item {
     this.quantity = quantity;
     this.price = price;
   }
-};
+}
 
 class Table {
   constructor(_id, occupied = false, status, customers = 0) {
     this._id = _id;
-    this.status = status
+    this.status = status;
     this.occupied = occupied;
     this.customers = customers;
   }
-};
+}
 
 var SelectTable = {
-  template: '<div><h2>Select a table to see the order</h2></div>'
+  template:
+    '<div><h2 class="has-text-centered">Select a table to see the order</h2></div>'
 };
 
 var EmptyTable = {
-  template: '<div><h2>Table is empty!</h2></div>'
+  template: '<div><h2 class="has-text-centered">No current order</h2></div>'
 };
 
 var app = new Vue({
@@ -57,22 +58,23 @@ var app = new Vue({
   },
 
   methods: {
-
     showTableOrder(tableNo) {
       this.errors = [];
-      this.empty = false
+      this.empty = false;
       this.currentBill.tableNo = tableNo;
 
       let currentTable = [];
       currentTable = this.existingOrders.filter(order => {
         return order['table'] === tableNo;
-      })
+      });
 
       if (currentTable.length === 0) {
         this.selected = true;
         this.empty = true;
       } else {
-        const extractedItems = this.extractItemsFromCourses(currentTable[0].order);
+        const extractedItems = this.extractItemsFromCourses(
+          currentTable[0].order
+        );
 
         this.currentBill.orderNo = currentTable[0]._id;
         this.currentBill.order = extractedItems;
@@ -110,12 +112,13 @@ var app = new Vue({
         bill: {
           totalPreTax: this.currentBill.totalPreTax,
           vatAmount: this.currentBill.vatAmount,
-          totalPostTax: this.currentBill.totalPostTax,
+          totalPostTax: this.currentBill.totalPostTax
         },
         status: 'paid'
-      }
+      };
 
-      axios.patch(`/api/counter/${this.currentBill.orderNo}`, payload)
+      axios
+        .patch(`/api/counter/${this.currentBill.orderNo}`, payload)
         .then(response => {
           let updatedOrder = response['data'];
           this.socket.emit('orderStateChange', updatedOrder);
@@ -124,13 +127,15 @@ var app = new Vue({
     },
 
     getOrders() {
-      axios.get('/api/counter/all-orders')
+      axios
+        .get('/api/counter/all-orders')
         .then(response => {
           let allOrders = response['data'];
-          this.existingOrders = allOrders.filter(o => o.status !== 'paid' && o.status !== 'abandoned');
+          this.existingOrders = allOrders.filter(
+            o => o.status !== 'paid' && o.status !== 'abandoned'
+          );
 
           this.existingOrders.forEach(order => {
-
             let orderTable = this.tables.find(t => t._id === order.table);
             orderTable.occupied = true;
             orderTable.customers = order.customers;
@@ -195,57 +200,65 @@ var app = new Vue({
       }
 
       if (this.adminPass && this.discount) {
-        axios.post('/api/admin/login', { data: this.adminPass })
+        axios
+          .post('/api/admin/login', { data: this.adminPass })
           .then(foundUser => {
             if (!foundUser) {
-              this.errors.push("User Could Not Be Found");
+              this.errors.push('User Could Not Be Found');
             } else {
               if (this.adminPass === foundUser['data'][0]['password']) {
-                this.currentBill.totalPostTax = this.currentBill.totalPostTax - (this.currentBill.totalPostTax * (this.discount / 100));
+                this.currentBill.totalPostTax =
+                  this.currentBill.totalPostTax -
+                  this.currentBill.totalPostTax * (this.discount / 100);
                 this.adminPass = '';
                 this.discount = null;
               } else {
-                this.errors.push("Incorrect Password!");
+                this.errors.push('Incorrect Password!');
               }
             }
           })
           .catch(err => {
-            console.log(err)
+            console.log(err);
           });
       }
     },
 
-    getCurrentTime(){
+    getCurrentTime() {
       return moment().format('MMMM Do YYYY, h:mm:ss a');
     },
 
     receiptToggle() {
-      if ( this.showHide === 'Show' ) {
-        this.showHide = 'Hide'
+      if (this.showHide === 'Show') {
+        this.showHide = 'Hide';
       } else {
-        this.showHide = 'Show'
+        this.showHide = 'Show';
       }
       this.showReceipt = !this.showReceipt;
     },
 
     orderHistoryToggle() {
-      if ( this.showHideOrder === 'Show' ) {
-        this.showHideOrder = 'Hide'
+      if (this.showHideOrder === 'Show') {
+        this.showHideOrder = 'Hide';
         this.showOrderHistory();
       } else {
-        this.showHideOrder = 'Show'
+        this.showHideOrder = 'Show';
       }
       this.orderHistory = !this.orderHistory;
     },
 
     showOrderHistory() {
-      axios.get('/api/counter/all-orders')
-        .then( response => {
+      axios
+        .get('/api/counter/all-orders')
+        .then(response => {
           let allOrders = response['data'];
 
-          this.paidOrders = allOrders.filter(o => o.status === 'paid');
-          
-          this.paidOrders.forEach( order => {
+          this.paidOrders = allOrders
+            .filter(o => o.status === 'paid')
+            .sort((a, b) => {
+              return moment(a.date).isBefore(moment(b.date));
+            });
+
+          this.paidOrders.forEach(order => {
             let items = this.extractItemsFromCourses(order.order);
             order.order = items;
           });
@@ -256,12 +269,15 @@ var app = new Vue({
   },
 
   computed: {
-    capitalizeFirstLetter: function () {
-      return this.currentBill.status.charAt(0).toUpperCase() + this.currentBill.status.slice(1);
+    capitalizeFirstLetter: function() {
+      return (
+        this.currentBill.status.charAt(0).toUpperCase() +
+        this.currentBill.status.slice(1)
+      );
     }
   },
 
-  created: function () {
+  created: function() {
     this.getOrders();
     this.currentBill.tableNo = 0;
     this.createTables();
@@ -282,7 +298,9 @@ var app = new Vue({
     });
 
     this.socket.on('orderStateChange', order => {
-      const orderToUpdate = this.existingOrders.find(t => t.table === order.table);
+      const orderToUpdate = this.existingOrders.find(
+        t => t.table === order.table
+      );
       const table = this.tables.find(t => t._id === order.table);
 
       if (order.status === 'abandoned' || order.status === 'paid') {
@@ -290,7 +308,10 @@ var app = new Vue({
         table.customers = 0;
         table.occupied = false;
         table.status = '';
-        this.existingOrders.splice(this.existingOrders.indexOf(orderToUpdate), 1);
+        this.existingOrders.splice(
+          this.existingOrders.indexOf(orderToUpdate),
+          1
+        );
         this.showTableOrder(order.table);
       } else {
         //  Update the order info
@@ -303,4 +324,3 @@ var app = new Vue({
     });
   }
 });
-
